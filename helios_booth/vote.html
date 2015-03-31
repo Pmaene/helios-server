@@ -579,57 +579,63 @@
 
 <body>
   <div id="wrapper">
-    <div id="banner" data-localize="banner">Helios Voting Booth</div>
+    <div id="border">
+      <div id="banner" data-localize="banner">Helios Voting Booth</div>
 
-    <div id="content">
-      <div id="header"></div>
+      <div id="content">
+        <div id="header"></div>
 
-      <div id="page">
-        <div id="progress_div" style="display:none; width: 500px; margin:auto;">
-          <table width="100%">
-            <tr>
-              <td id="progress_1" data-localize="progress_1">(1) Select</td>
-              <td id="progress_2" data-localize="progress_2">(2) Review</td>
-              <td id="progress_3" data-localize="progress_3">(3) Submit</td>
-            </tr>
-          </table>
-        </div>
-
-        <div id="election_div" class="panel">
-          <div align="center">
-            <h3 data-localication="checking_capabilities">Checking capabilities and loading election booth...</h3>
-
-            <img src="loading.gif" />
-            <br />
-            <span data-localization="checking_capabilities_seconds">This may take up to 10 seconds.</span>
+        <div id="page">
+          <div id="progress_div" style="display:none; width: 500px; margin:auto;">
+            <table width="100%">
+              <tr>
+                <td id="progress_1" data-localize="progress_1">(1) Select</td>
+                <td id="progress_2" data-localize="progress_2">(2) Review</td>
+                <td id="progress_3" data-localize="progress_3">(3) Submit</td>
+              </tr>
+            </table>
           </div>
+
+          <div id="election_div" class="panel">
+            <div align="center">
+              <h3 data-localication="checking_capabilities">Checking capabilities and loading election booth...</h3>
+
+              <img src="loading.gif" />
+              <br />
+              <span data-localization="checking_capabilities_seconds">This may take up to 10 seconds.</span>
+            </div>
+          </div>
+
+          <div id="question_div" class="panel"></div>
+
+          <div id="confirm_div" class="panel"></div>
+
+          <div id="processing_div" class="panel" style="display:none;">
+            <h3 align="center">Processing....</h3>
+          </div>
+
+          <div id="encrypting_div" class="panel" style="display: none;">
+            <h3 align="center">
+              <span data-localize="encrypting">Helios is now encrypting your ballot...</span>
+              <br />
+              <img src="encrypting.gif" />
+            </h3>
+
+            <p align="center"><b data-localize="encrypting_minutes">This may take up to two minutes.</b>
+          </div>
+
+          <div id="audit_div" class="panel"></div>
         </div>
 
-        <div id="question_div" class="panel"></div>
-
-        <div id="confirm_div" class="panel"></div>
-
-        <div id="processing_div" class="panel" style="display:none;">
-          <h3 align="center">Processing....</h3>
-        </div>
-
-        <div id="encrypting_div" class="panel" style="display: none;">
-          <h3 align="center">
-            <span data-localize="encrypting">Helios is now encrypting your ballot...</span>
-            <br />
-            <img src="encrypting.gif" />
-          </h3>
-
-          <p align="center"><b data-localize="encrypting_minutes">This may take up to two minutes.</b>
-        </div>
-
-        <div id="audit_div" class="panel"></div>
+        <br clear="both" />
       </div>
 
-      <br clear="both" />
+      <div id="footer"></div>  
     </div>
 
-    <div id="footer"></div>
+    <div style="margin-top: 20px; text-align: center;">
+      <img src="kuleuven-logo.png" width="150px" />
+    </div>
   </div>
 
   <div id="applet_div"></div>
