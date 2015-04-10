@@ -1,5 +1,7 @@
 {% extends TEMPLATE_BASE %}
-{% block title %}Confirm Your Vote in {{election.name}}{% endblock %}
+{% load i18n %}
+
+{% block title %}{% blocktrans with election=election.name %}Confirm Your Vote in {{election}}{% endblocktrans %}{% endblock %}
 
 {% load foundation %}
 
@@ -22,7 +24,7 @@
       if (typeof evt == 'undefined')
         evt = window.event;
 
-      var message = 'You have not yet cast your ballot! Make sure to complete the voting process if you want your vote to count.';
+      var message = '{% trans "You have not yet cast your ballot! Make sure to complete the voting process if you want your vote to count." %}';
 
       if (evt)
         evt.returnValue = message;
@@ -33,7 +35,7 @@
 
   <div class="row">
     <div class="large-12 columns">
-      <h2>{{election.name}}&mdash;Confirm Your Vote</h2>
+      <h2>{{election.name}}&mdash;{% trans "Confirm Your Vote" %}</h2>
 
       <div id="all_forms">
         {% if voter %}
@@ -52,16 +54,18 @@
                   {% endif %}
 
                   <p>
-                    We have received, <b>but not yet recorded</b>, your encrypted ballot. <b>To upload your encrypted ballot to the server, please click on the button below.</b>
+                    {% blocktrans %}
+                      We have received, <b>but not yet recorded</b>, your encrypted ballot. <b>To upload your encrypted ballot to the server, please click on the button below.</b>
+                    {% endblocktrans %}
                   </p>
 
                   <div align="center">
-                    <button type="submit" class="remove_unload">I am <u>{{voter.display_html_big|safe}}</u>, submit my vote!</button>
+                    <button type="submit" class="remove_unload">{% blocktrans with voter=voter.display_html_big|safe %}I am <u>{{voter}}</u>, submit my vote!{% endblocktrans %}</button>
                   </div>
 
                   <div id="waiting_div">
                     <p>
-                      Verifying and casting your ballot...
+                      {% trans "Verifying and casting your ballot..." %}
                     </p>
 
                     <p class="text-center">
@@ -70,42 +74,46 @@
                   </div>
 
                   <div data-alert class="alert-box warning">
-                    You can cast as many ballots as you want: only the last one counts.
+                    {% trans "You can cast as many ballots as you want: only the last one counts." %}
                   </div>
                 </form>
 
                 <p>
-                  If you cancel now, your ballot will <b>not</b> be recorded. You can start the voting process over again, of course.
+                  {% blocktrans %}
+                    If you cancel now, your ballot will <b>not</b> be recorded. You can start the voting process over again, of course.
+                  {% endblocktrans %}
                 </p>
 
-                <a class="tiny secondary button" href="{% url 'helios.views.one_election_view' election.uuid %}">Cancel</a>
+                <a class="tiny secondary button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Cancel" %}</a>
               </div>
             {% else %}
               <div data-alert class="alert-box warning">
-                Voting has stopped, sorry.
+                {% trans "Voting has stopped, sorry." %}
               </div>
             {% endif %}
           {% else %}
             <div data-alert class="alert-box warning">
-              Voting has not yet begun, sorry.
+              {% trans "Voting has not yet begun, sorry." %}
             </div>
           {% endif %}
         {% else %}
           {% if show_password %}
             {% if user %}
               <p>
-                You are logged in as <u>{{user.display_html_small|safe}}</u>, but this election requires election-specific credentials.
+                {% blocktrans with user=user.display_html_small|safe %}
+                  You are logged in as <u>{{user}}</u>, but this election requires election-specific credentials.
+                {% endblocktrans %}
               </p>
             {% endif %}
 
             {% with cast_ballot="1" %}
               <p>
-                Please provide the voter ID and password you received by email.
+                {% trans "Please provide the voter ID and password you received by email." %}
               </p>
 
               {% if bad_voter_login %}
                 <div data-alert class="alert-box error">
-                  Bad voter ID or password, please try again.
+                  {% trans "Bad voter ID or password, please try again." %}
                 </div>
               {% endif %}
 
@@ -116,34 +124,34 @@
 
                 {{password_login_form|foundationinline}}
 
-                <input class="button" type="submit" value="Confirm Your Ballot" />
+                <input class="button" type="submit" value="{% trans "Confirm Your Ballot" %}" />
               </form>
             {% endwith %}
           {% else %}
             {% if user %}
               <div alert-box class="alert-box warning">
                 {% if election.openreg %}
-                  Sorry, you are <i>not eligible</i> for this election.
+                  {% blocktrans %}Sorry, you are <i>not eligible</i> for this election.{% endblocktrans %}
                 {% else %}
-                  Sorry, you are <i>not registered</i> for this election, and registration is closed.
+                  {% blocktrans %}Sorry, you are <i>not registered</i> for this election, and registration is closed.{% endblocktrans %}
                 {% endif %}
               </div>
 
-              <a class="button" href="{% url 'helios.views.one_election_view' election.uuid %}">Return to Election Info</a>
+              <a class="button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Return to Election Info" %}</a>
             {% else %}
               <p>
-                Now, we need you to log in, so we can verify your eligibility. Don't worry, we'll remember your ballot while you log in.
+                {% trans "Now, we need you to log in, so we can verify your eligibility. Don't worry, we'll remember your ballot while you log in." %}
               </p>
 
               {% if election.openreg %}
                 {% if not election.eligibility %}
                   <div data-alert class="alert-box info">
-                    This election is open to <i>anyone</i>, so log in with your preferred account.
+                    {% blocktrans %}This election is open to <i>anyone</i>, so log in with your preferred account.{% endblocktrans %}
                   </div>
                 {% endif %}
               {% else %}
                 <div data-alert class="alert-box info">
-                  This election is only open to <i>registered voters</i>, so log in with the same account you registered with.
+                  {% blocktrans %}This election is only open to <i>registered voters</i>, so log in with the same account you registered with.{% endblocktrans %}
                 </div>
               {% endif %}
 
@@ -153,7 +161,7 @@
         {% endif %}
       </div>
 
-      <h3>Your Smart Ballot Tracker</h3>
+      <h3>{% trans "Your Smart Ballot Tracker" %}</h3>
 
       <div class="panel callout">
         <p class="text-center">

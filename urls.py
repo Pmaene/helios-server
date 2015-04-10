@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import *
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.conf import settings
 
 urlpatterns = patterns('',
     (r'^helios_auth/', include('helios_auth.urls')),
-    (r'^helios/', include('helios.urls')),
 
     # SHOULD BE REPLACED BY APACHE STATIC PATH
     (r'booth/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.ROOT_PATH + '/helios_booth'}),
@@ -16,4 +16,8 @@ urlpatterns = patterns('',
     (r'static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.ROOT_PATH + '/server_ui/media'}),
 
     (r'^', include('server_ui.urls')),
+)
+
+urlpatterns += i18n_patterns('',
+  (r'^helios/', include('helios.urls')),
 )

@@ -1,16 +1,20 @@
 {% extends TEMPLATE_BASE %}
-{% block title %}Confirm Your Vote in {{election.name}}{% endblock %}
+{% load i18n %}
+
+{% block title %}{% blocktrans with election=election.name %}Confirm Your Vote in {{election}}{% endblocktrans %}{% endblock %}
 
 {% block content %}
   <div class="row">
     <div class="larger-12 columns">
-      <h2>{{election.name}}&mdash;Vote Successfully Cast!</h2>
+      <h2>{{election.name}}&mdash;{% trans "Vote Successfully Cast!" %}</h2>
 
       <p>
-        Congratulations, your vote has been <b>successfully cast</b>!
+        {% blocktrans %}
+          Congratulations, your vote has been <b>successfully cast</b>!
+        {% endblocktrans %}
       </p>
 
-      <h3>Your Smart Ballot Tracker</h3>
+      <h3>{% trans "Your Smart Ballot Tracker" %}</h3>
 
       <div class="panel callout">
         <p class="text-center">
@@ -24,11 +28,11 @@
 
       {% if logout %}
         <div data-alert class="alert-box info">
-          For your safety, we have logged you out.
+          {% trans "For your safety, we have logged you out." %}
         </div>
       {% endif %}
 
-      <a class="button" href="{% url 'helios.views.one_election_view' election.uuid %}">Return to Election Info</a>
+      <a class="button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Return to Election Info" %}</a>
 
       {% if logout %}
         <iframe width="0" height="0" border="0" frameborder="0" src="{% url 'helios_auth.views.logout' %}"></iframe>

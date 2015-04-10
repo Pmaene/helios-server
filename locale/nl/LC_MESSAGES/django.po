@@ -1,0 +1,182 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-10 17:36+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: helios/templates/election_cast_confirm.html:4
+#: helios/templates/election_cast_done.html:4
+#, python-format
+msgid "Confirm Your Vote in %(election)s"
+msgstr "Bevestig je stem voor %(election)s"
+
+#: helios/templates/election_cast_confirm.html:27
+msgid ""
+"You have not yet cast your ballot! Make sure to complete the voting process "
+"if you want your vote to count."
+msgstr ""
+"Je hebt je biljet nog niet bevestigd! Voltooi het stemproces om zeker te "
+"zijn dat je stem meegeteld wordt."
+
+#: helios/templates/election_cast_confirm.html:38
+msgid "Confirm Your Vote"
+msgstr "Bevestig je stem"
+
+#: helios/templates/election_cast_confirm.html:57
+msgid ""
+"\n"
+"                      We have received, <b>but not yet recorded</b>, your "
+"encrypted ballot. <b>To upload your encrypted ballot to the server, please "
+"click on the button below.</b>\n"
+"                    "
+msgstr ""
+"\n"
+"                      We hebben je ge&euml;ncrypteerde stem ontvangen, "
+"<b>maar nog niet bewaard</b>. <b>Gelieve op de knop hieronder te klikken  om "
+"ze te uploaden naar de server.</b>\n"
+"                    "
+
+#: helios/templates/election_cast_confirm.html:63
+#, python-format
+msgid "I am <u>%(voter)s</u>, submit my vote!"
+msgstr "Ik ben <u>%(voter)s</u>, bewaar mijn stem!"
+
+#: helios/templates/election_cast_confirm.html:68
+msgid "Verifying and casting your ballot..."
+msgstr "Je stem wordt geverifieerd en bewaard..."
+
+#: helios/templates/election_cast_confirm.html:77
+msgid "You can cast as many ballots as you want: only the last one counts."
+msgstr "Je kan zo vaak stemmen als je wil: alleen de laatste wordt meegeteld."
+
+#: helios/templates/election_cast_confirm.html:82
+msgid ""
+"\n"
+"                    If you cancel now, your ballot will <b>not</b> be "
+"recorded. You can start the voting process over again, of course.\n"
+"                  "
+msgstr ""
+"\n"
+"                    Als je nu annuleert, zal je stem niet bewaard worden Je "
+"kan het stemproces uiteraard opnieuw beginnen.\n"
+"                  "
+
+#: helios/templates/election_cast_confirm.html:87
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: helios/templates/election_cast_confirm.html:91
+msgid "Voting has stopped, sorry."
+msgstr "Sorry, de verkiezing is afgesloten."
+
+#: helios/templates/election_cast_confirm.html:96
+msgid "Voting has not yet begun, sorry."
+msgstr "Sorry, de verkiezing is nog niet begonnen."
+
+#: helios/templates/election_cast_confirm.html:103
+#, python-format
+msgid ""
+"\n"
+"                  You are logged in as <u>%(user)s</u>, but this election "
+"requires election-specific credentials.\n"
+"                "
+msgstr ""
+"\n"
+"                  Je bent ingelogd als <u>%(user)s</u>, maar deze verkiezing "
+"vereist speciale inloggegevens.\n"
+"                "
+
+#: helios/templates/election_cast_confirm.html:111
+msgid "Please provide the voter ID and password you received by email."
+msgstr ""
+"Gelieve het voter ID en wachtwoord in te geven die je ontvangen hebt via "
+"email."
+
+#: helios/templates/election_cast_confirm.html:116
+msgid "Bad voter ID or password, please try again."
+msgstr "Foutief voter ID of password, gelieve opnieuw te proberen."
+
+#: helios/templates/election_cast_confirm.html:127
+msgid "Confirm Your Ballot"
+msgstr "Bevestig je stem"
+
+#: helios/templates/election_cast_confirm.html:134
+msgid "Sorry, you are <i>not eligible</i> for this election."
+msgstr ""
+"Sorry, maar je komt <i>niet in aanmerking</i> om te stemmen in deze "
+"verkiezing."
+
+#: helios/templates/election_cast_confirm.html:136
+msgid ""
+"Sorry, you are <i>not registered</i> for this election, and registration is "
+"closed."
+msgstr ""
+"Sorry, je bent <i>niet geregistreerd</i> voor deze verkiezing en de "
+"registratie is afgesloten."
+
+#: helios/templates/election_cast_confirm.html:140
+#: helios/templates/election_cast_done.html:35
+msgid "Return to Election Info"
+msgstr "Keer terug naar de verkiezingsinfo"
+
+#: helios/templates/election_cast_confirm.html:143
+msgid ""
+"Now, we need you to log in, so we can verify your eligibility. Don't worry, "
+"we'll remember your ballot while you log in."
+msgstr ""
+"Gelieve nu in te loggen zodat we in kunnen nagaan of je in aanmerking komt "
+"voor deze verkiezing. Maak je geen zorgen, we houden je biljet bij terwijl "
+"je inlogt."
+
+#: helios/templates/election_cast_confirm.html:149
+msgid ""
+"This election is open to <i>anyone</i>, so log in with your preferred "
+"account."
+msgstr ""
+"<i>Iedereen</i> mag stemmen in deze verkiezing, dus je kan inloggen met je "
+"favoriete account."
+
+#: helios/templates/election_cast_confirm.html:154
+msgid ""
+"This election is only open to <i>registered voters</i>, so log in with the "
+"same account you registered with."
+msgstr ""
+"Alleen <i>geregistreerde kiezers</i> mogen stemmen in deze verkiezing. "
+"Gelieve dus in te loggen met de account waarmee je je geregistreerd hebt."
+
+#: helios/templates/election_cast_confirm.html:164
+#: helios/templates/election_cast_done.html:17
+msgid "Your Smart Ballot Tracker"
+msgstr "Je Smart Ballot Tracker"
+
+#: helios/templates/election_cast_done.html:9
+msgid "Vote Successfully Cast!"
+msgstr "Je stem werd bewaard"
+
+#: helios/templates/election_cast_done.html:12
+msgid ""
+"\n"
+"          Congratulations, your vote has been <b>successfully cast</b>!\n"
+"        "
+msgstr ""
+"\n"
+"          Proficiat, je stem werd <b>bewaard</b>!\n"
+"        "
+
+#: helios/templates/election_cast_done.html:31
+msgid "For your safety, we have logged you out."
+msgstr "Voor de veiligheid hebben we je uitgelogd."
