@@ -1,9 +1,8 @@
 {% extends TEMPLATE_BASE %}
+{% load foundation %}
 {% load i18n %}
 
 {% block title %}{% blocktrans with election=election.name %}Confirm Your Vote in {{election}}{% endblocktrans %}{% endblock %}
-
-{% load foundation %}
 
 {% block content %}
   <script language="javascript">
