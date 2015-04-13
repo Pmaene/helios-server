@@ -11,6 +11,8 @@ def get_from_env(var, default):
 DEBUG = (get_from_env('DEBUG', '1') == '1')
 TEMPLATE_DEBUG = DEBUG
 
+SITE_ID = 1
+
 ADMINS = (
     ('Pieter Maene', 'p.maene@gmail.com'),
 )

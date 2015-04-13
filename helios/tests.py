@@ -461,11 +461,11 @@ class ElectionBlackboxTests(WebTest):
         self.assertEquals(response.content, views.ELGAMAL_PARAMS_LD_OBJECT.serialize())
 
     def test_election_404(self):
-        response = self.client.get("/helios/elections/foobar")
+        response = self.client.get("/helios/elections/foobar", follow=True)
         self.assertEquals(response.status_code, 404)
 
     def test_election_bad_trustee(self):
-        response = self.client.get("/helios/t/%s/foobar@bar.com/badsecret" % self.election.short_name)
+        response = self.client.get("/helios/t/%s/foobar@bar.com/badsecret" % self.election.short_name, follow=True)
         self.assertEquals(response.status_code, 404)
 
     def test_get_election_shortcut(self):
@@ -605,7 +605,7 @@ class ElectionBlackboxTests(WebTest):
         response = self.client.get("/helios/elections/%s/voters/%s" % (election_id, single_voter.uuid))
         self.assertContains(response, '"uuid": "%s"' % single_voter.uuid)
 
-        response = self.client.get("/helios/elections/%s/voters/foobar" % election_id)
+        response = self.client.get("/helios/elections/%s/voters/foobar" % election_id, follow=True)
         self.assertEquals(response.status_code, 404)
 
         # add questions
@@ -677,7 +677,7 @@ class ElectionBlackboxTests(WebTest):
 
         # cast the ballot
         response = self.app.post("/helios/elections/%s/cast" % election_id, {'encrypted_vote': encrypted_vote})
-        self.assertRedirects(response, "%s/helios/elections/%s/cast-confirm" % (settings.SECURE_URL_HOST, election_id))
+        self.assertRedirects(response, "%s/en/helios/elections/%s/cast-confirm" % (settings.SECURE_URL_HOST, election_id))
 
         cast_confirm_page = response.follow()
 
@@ -709,7 +709,7 @@ class ElectionBlackboxTests(WebTest):
             response = cast_form.submit()
 
         self.assertRedirects(
-            response, "%s/helios/elections/%s/cast-done" % (settings.URL_HOST, election_id))
+            response, "%s/en/helios/elections/%s/cast-done" % (settings.URL_HOST, election_id))
 
         # at this point an email should have gone out to the user
         # at position num_messages after, since that was the len() before we
@@ -724,8 +724,7 @@ class ElectionBlackboxTests(WebTest):
             # so if need_login is False, it was a private election, and we do need to re-login here
             # we need to re-login if it's a private election, because all data, including ballots
             # is otherwise private
-            login_page = self.app.get(
-                "/helios/elections/%s/password-voter-login" % election_id)
+            login_page = self.app.get("/helios/elections/%s/password-voter-login" % election_id)
 
             # if we redirected, that's because we can see the page, I think
             if login_page.status_int != 302:
