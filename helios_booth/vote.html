@@ -570,9 +570,16 @@
 
     BOOTH.localize_cast_url = function() {
       // TODO: Resorted to hackery for the localization of the cast URL...
-
       var language = window.location.hash.substring(1) != '' ? window.location.hash.substring(1, 3) : 'en';
-      return BOOTH.election.cast_url.replace('helios', language + '/helios')
+
+      var localized_url = BOOTH.election.cast_url;
+      if (!/\/[a-z]{2}\/helios\//.test(BOOTH.election.cast_url)) {
+        localized_url = BOOTH.election.cast_url.replace('helios', language + '/helios');
+      } else {
+        localized_url = BOOTH.election.cast_url.replace(/\/[a-z]{2}\/helios\//, language + '/helios');
+      }
+
+      return localized_url;
     };
 
     $(window).bind('hashchange', function() {

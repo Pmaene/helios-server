@@ -18,6 +18,7 @@ import csv
 import urllib
 import os
 import base64
+import re
 
 from validate_email import validate_email
 
@@ -244,7 +245,7 @@ def election_new(request):
             # is the short name valid
             if helios_utils.urlencode(election_params['short_name']) == election_params['short_name']:
                 election_params['uuid'] = str(uuid.uuid1())
-                election_params['cast_url'] = settings.SECURE_URL_HOST + reverse(one_election_cast, args=[election_params['uuid']])
+                election_params['cast_url'] = settings.SECURE_URL_HOST + re.sub(r'^\/[a-z]{2}', '', reverse(one_election_cast, args=[election_params['uuid']]))
 
                 # registration starts closed
                 election_params['openreg'] = False
