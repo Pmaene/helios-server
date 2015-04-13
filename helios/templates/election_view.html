@@ -121,16 +121,16 @@
           </div>
         {% else %}
           {% if election.voting_has_started %}
-            <a class="button" href="{{test_cookie_url}}">Vote in This {{election.election_type|title}}</a>
+            <a class="button" href="{{test_cookie_url}}">Vote in This Election</a>
 
             <div data-alert class="alert-box warning">
               {% if election.voting_extended_until %}
-                This {{election.election_type}} was initially scheduled to end at {{election.voting_ends_at}}, but has been extended until {{ election.voting_extended_until }}.
+                This election was initially scheduled to end at {{election.voting_ends_at}}, but has been extended until {{ election.voting_extended_until }}.
               {% else %}
                 {% if election.voting_ends_at %}
-                  This {{election.election_type}} is scheduled to end at {{election.voting_ends_at}}.
+                  This election is scheduled to end at {{election.voting_ends_at}}.
                 {% else %}
-                  This {{election.election_type}} ends at the administrator's discretion.
+                  This election ends at the administrator's discretion.
                 {% endif %}
               {% endif %}
             </div>
@@ -141,7 +141,7 @@
           {% else %}
             <div data-alert class="alert-box warning">
               {% if election.voting_starts_at %}
-                This {{election.election_type}} is scheduled to start at {{election.voting_starts_at}}.
+                This election is scheduled to start at {{election.voting_starts_at}}.
               {% else %}
                 Voting is not yet open.
               {% endif %}
@@ -151,7 +151,7 @@
           {% if user %}
             {% if voter %}
               <p>
-                You are registered to vote in this {{election.election_type}}. {% if election.use_voter_aliases %}Your voter alias is {{voter.alias}}.{% endif %}
+                You are registered to vote in this election. {% if election.use_voter_aliases %}Your voter alias is {{voter.alias}}.{% endif %}
               </p>
             {% else %}
               {% if not election.result %}
@@ -160,10 +160,10 @@
                     {% if eligible_p %}
                       You are eligible to vote in this election.
                     {% else %}
-                      You are <i>not eligible</i> to vote in this {{election.election_type}}.
+                      You are <i>not eligible</i> to vote in this election.
                     {% endif %}
                   {% else %}
-                    You are <i>not eligible</i> to vote in this {{election.election_type}}.
+                    You are <i>not eligible</i> to vote in this election.
                   {% endif %}
                 </div>
               {% endif %}

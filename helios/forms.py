@@ -11,7 +11,6 @@ from django.conf import settings
 class ElectionForm(forms.Form):
   name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'data-help': 'The pretty name for your election, e.g. \"My Club 2010 Election\".'}))
   short_name = forms.SlugField(label='Short Name', max_length=25, widget=forms.TextInput(attrs={'data-help': 'No spaces, will be part of the URL for your election, e.g. \"my-club-2010\".'}))
-  election_type = forms.ChoiceField(label='Election Type', choices=Election.ELECTION_TYPES, widget=forms.Select())
   use_voter_aliases = forms.BooleanField(required=False, initial=False, label='Use Voter Aliases', widget=forms.CheckboxInput(attrs={'data-help': 'If selected, voter identities will be replaced with aliases, e.g. \"V12\", in the ballot tracking center.'}))
   #use_advanced_audit_features = forms.BooleanField(required=False, initial=True, help_text='disable this only if you want a simple election with reduced security but a simpler user interface')
   randomize_answer_order = forms.BooleanField(required=False, initial=False, label='Randomize Answer Order', widget=forms.CheckboxInput(attrs={'data-help': 'Enable this if you want the answers to questions to appear in random order for each voter.'}))

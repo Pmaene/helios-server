@@ -69,12 +69,7 @@ class Election(HeliosModel):
     short_name = models.CharField(max_length=100)
     name = models.CharField(max_length=250)
 
-    ELECTION_TYPES = (
-        ('election', 'Election'),
-        ('referendum', 'Referendum')
-    )
-
-    election_type = models.CharField(max_length=250, null=False, default='election', choices=ELECTION_TYPES)
+    election_type = models.CharField(max_length=250, null=False, default='election')
     private_p = models.BooleanField(default=False, null=False)
 
     description = models.TextField()
@@ -176,7 +171,7 @@ class Election(HeliosModel):
 
     @property
     def pretty_type(self):
-        return dict(self.ELECTION_TYPES)[self.election_type]
+        return self.election_type.capitalize()
 
     @property
     def num_cast_votes(self):
