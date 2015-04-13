@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-10 17:36+0200\n"
+"POT-Creation-Date: 2015-04-13 19:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: helios/templates/election_cast_confirm.html:4
+#: helios/models.py:321
+msgid "Anyone!"
+msgstr "Iedereen!"
+
+#: helios/models.py:334
+#, python-format
+msgid "Any %s user"
+msgstr "Elke %s gebruiker"
+
+#: helios/templates/election_cast_confirm.html:5
 #: helios/templates/election_cast_done.html:4
 #, python-format
 msgid "Confirm Your Vote in %(election)s"
 msgstr "Bevestig je stem voor %(election)s"
 
-#: helios/templates/election_cast_confirm.html:27
+#: helios/templates/election_cast_confirm.html:26
 msgid ""
 "You have not yet cast your ballot! Make sure to complete the voting process "
 "if you want your vote to count."
@@ -32,11 +41,11 @@ msgstr ""
 "Je hebt je biljet nog niet bevestigd! Voltooi het stemproces om zeker te "
 "zijn dat je stem meegeteld wordt."
 
-#: helios/templates/election_cast_confirm.html:38
+#: helios/templates/election_cast_confirm.html:37
 msgid "Confirm Your Vote"
 msgstr "Bevestig je stem"
 
-#: helios/templates/election_cast_confirm.html:57
+#: helios/templates/election_cast_confirm.html:56
 msgid ""
 "\n"
 "                      We have received, <b>but not yet recorded</b>, your "
@@ -50,20 +59,20 @@ msgstr ""
 "ze te uploaden naar de server.</b>\n"
 "                    "
 
-#: helios/templates/election_cast_confirm.html:63
+#: helios/templates/election_cast_confirm.html:62
 #, python-format
 msgid "I am <u>%(voter)s</u>, submit my vote!"
 msgstr "Ik ben <u>%(voter)s</u>, bewaar mijn stem!"
 
-#: helios/templates/election_cast_confirm.html:68
+#: helios/templates/election_cast_confirm.html:67
 msgid "Verifying and casting your ballot..."
 msgstr "Je stem wordt geverifieerd en bewaard..."
 
-#: helios/templates/election_cast_confirm.html:77
+#: helios/templates/election_cast_confirm.html:76
 msgid "You can cast as many ballots as you want: only the last one counts."
 msgstr "Je kan zo vaak stemmen als je wil: alleen de laatste wordt meegeteld."
 
-#: helios/templates/election_cast_confirm.html:82
+#: helios/templates/election_cast_confirm.html:81
 msgid ""
 "\n"
 "                    If you cancel now, your ballot will <b>not</b> be "
@@ -75,19 +84,19 @@ msgstr ""
 "kan het stemproces uiteraard opnieuw beginnen.\n"
 "                  "
 
-#: helios/templates/election_cast_confirm.html:87
+#: helios/templates/election_cast_confirm.html:86
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: helios/templates/election_cast_confirm.html:91
+#: helios/templates/election_cast_confirm.html:90
 msgid "Voting has stopped, sorry."
 msgstr "Sorry, de verkiezing is afgesloten."
 
-#: helios/templates/election_cast_confirm.html:96
+#: helios/templates/election_cast_confirm.html:95
 msgid "Voting has not yet begun, sorry."
 msgstr "Sorry, de verkiezing is nog niet begonnen."
 
-#: helios/templates/election_cast_confirm.html:103
+#: helios/templates/election_cast_confirm.html:102
 #, python-format
 msgid ""
 "\n"
@@ -100,27 +109,27 @@ msgstr ""
 "vereist speciale inloggegevens.\n"
 "                "
 
-#: helios/templates/election_cast_confirm.html:111
+#: helios/templates/election_cast_confirm.html:110
 msgid "Please provide the voter ID and password you received by email."
 msgstr ""
 "Gelieve het voter ID en wachtwoord in te geven die je ontvangen hebt via "
 "email."
 
-#: helios/templates/election_cast_confirm.html:116
+#: helios/templates/election_cast_confirm.html:115
 msgid "Bad voter ID or password, please try again."
 msgstr "Foutief voter ID of password, gelieve opnieuw te proberen."
 
-#: helios/templates/election_cast_confirm.html:127
+#: helios/templates/election_cast_confirm.html:126
 msgid "Confirm Your Ballot"
 msgstr "Bevestig je stem"
 
-#: helios/templates/election_cast_confirm.html:134
+#: helios/templates/election_cast_confirm.html:133
 msgid "Sorry, you are <i>not eligible</i> for this election."
 msgstr ""
 "Sorry, maar je komt <i>niet in aanmerking</i> om te stemmen in deze "
 "verkiezing."
 
-#: helios/templates/election_cast_confirm.html:136
+#: helios/templates/election_cast_confirm.html:135
 msgid ""
 "Sorry, you are <i>not registered</i> for this election, and registration is "
 "closed."
@@ -128,12 +137,12 @@ msgstr ""
 "Sorry, je bent <i>niet geregistreerd</i> voor deze verkiezing en de "
 "registratie is afgesloten."
 
-#: helios/templates/election_cast_confirm.html:140
+#: helios/templates/election_cast_confirm.html:139
 #: helios/templates/election_cast_done.html:35
 msgid "Return to Election Info"
 msgstr "Keer terug naar de verkiezingsinfo"
 
-#: helios/templates/election_cast_confirm.html:143
+#: helios/templates/election_cast_confirm.html:142
 msgid ""
 "Now, we need you to log in, so we can verify your eligibility. Don't worry, "
 "we'll remember your ballot while you log in."
@@ -142,7 +151,7 @@ msgstr ""
 "voor deze verkiezing. Maak je geen zorgen, we houden je biljet bij terwijl "
 "je inlogt."
 
-#: helios/templates/election_cast_confirm.html:149
+#: helios/templates/election_cast_confirm.html:148
 msgid ""
 "This election is open to <i>anyone</i>, so log in with your preferred "
 "account."
@@ -150,7 +159,7 @@ msgstr ""
 "<i>Iedereen</i> mag stemmen in deze verkiezing, dus je kan inloggen met je "
 "favoriete account."
 
-#: helios/templates/election_cast_confirm.html:154
+#: helios/templates/election_cast_confirm.html:153
 msgid ""
 "This election is only open to <i>registered voters</i>, so log in with the "
 "same account you registered with."
@@ -158,14 +167,15 @@ msgstr ""
 "Alleen <i>geregistreerde kiezers</i> mogen stemmen in deze verkiezing. "
 "Gelieve dus in te loggen met de account waarmee je je geregistreerd hebt."
 
-#: helios/templates/election_cast_confirm.html:164
+#: helios/templates/election_cast_confirm.html:163
 #: helios/templates/election_cast_done.html:17
+#: helios/templates/election_view.html:230
 msgid "Your Smart Ballot Tracker"
 msgstr "Je Smart Ballot Tracker"
 
 #: helios/templates/election_cast_done.html:9
 msgid "Vote Successfully Cast!"
-msgstr "Je stem werd bewaard"
+msgstr "Je stem werd bewaard!"
 
 #: helios/templates/election_cast_done.html:12
 msgid ""
@@ -180,3 +190,206 @@ msgstr ""
 #: helios/templates/election_cast_done.html:31
 msgid "For your safety, we have logged you out."
 msgstr "Voor de veiligheid hebben we je uitgelogd."
+
+#: helios/templates/election_view.html:16
+msgid "Admin"
+msgstr "Beheer"
+
+#: helios/templates/election_view.html:24
+msgid "Created by"
+msgstr "Aangemaakt door"
+
+#: helios/templates/election_view.html:33
+#: helios/templates/election_view.html:42
+msgid "Voting"
+msgstr "Stemmen"
+
+#: helios/templates/election_view.html:33
+msgid "Started"
+msgstr "begon"
+
+#: helios/templates/election_view.html:33
+msgid "Starts"
+msgstr "begint"
+
+#: helios/templates/election_view.html:33
+#: helios/templates/election_view.html:42
+msgid "at"
+msgstr "op"
+
+#: helios/templates/election_view.html:42
+msgid "Ended"
+msgstr "eindigde"
+
+#: helios/templates/election_view.html:42
+msgid "Ends"
+msgstr "eindigt"
+
+#: helios/templates/election_view.html:54
+msgid "Election Info"
+msgstr "Verkiezingsinfo"
+
+#: helios/templates/election_view.html:55
+msgid "Candidate Bios and Statements"
+msgstr "Bio en verklaringen van de kandidaat"
+
+#: helios/templates/election_view.html:59
+msgid "Description"
+msgstr "Beschrijving"
+
+#: helios/templates/election_view.html:74
+msgid "This election is complete."
+msgstr "Deze verkiezing is afgelopen."
+
+#: helios/templates/election_view.html:79
+msgid "Participation"
+msgstr "Deelname"
+
+#: helios/templates/election_view.html:82
+#, python-format
+msgid ""
+"\n"
+"              %(num_voters_cast)s out of %(num_voters)s voters cast their "
+"vote, or %(participation_percentage)s%%.\n"
+"            "
+msgstr ""
+"\n"
+"              %(num_voters_cast)s van de %(num_voters)s kiezers bracht zijn "
+"stem uit, of %(participation_percentage)s%%.\n"
+"            "
+
+#: helios/templates/election_view.html:89
+msgid "Tally"
+msgstr "Telling"
+
+#: helios/templates/election_view.html:100
+msgid "Answer"
+msgstr "Antwoord"
+
+#: helios/templates/election_view.html:103
+msgid "Count"
+msgstr "Resultaat"
+
+#: helios/templates/election_view.html:124
+msgid "This election is closed. The tally will be computed soon."
+msgstr "Deze verkiezing is gesloten. De telling wordt spoedig berekend."
+
+#: helios/templates/election_view.html:128
+msgid "Vote in this Election"
+msgstr "Stem in deze verkiezing"
+
+#: helios/templates/election_view.html:132
+#, python-format
+msgid ""
+"\n"
+"                  This election was initially scheduled to end at "
+"%(voting_ends_at)s, but has been extended until %(voting_extended_until)s.\n"
+"                "
+msgstr ""
+"\n"
+"                  Deze verkiezing eindigde oorspronkelijk om "
+"%(voting_ends_at)s, maar werd verlengd tot %(voting_extended_until)s.\n"
+"                "
+
+#: helios/templates/election_view.html:137
+#, python-format
+msgid ""
+"\n"
+"                    This election is scheduled to end at "
+"%(voting_ends_at)s.\n"
+"                  "
+msgstr ""
+"\n"
+"                    Deze verkiezing eindigt om %(voting_ends_at)s.\n"
+"                  "
+
+#: helios/templates/election_view.html:141
+msgid "This election ends at the administrator's discretion."
+msgstr "De beheerder bepaalt wanneer deze verkiezing eindigt."
+
+#: helios/templates/election_view.html:148
+#, python-format
+msgid ""
+"\n"
+"                  This election is <b>private</b>. You are signed in as "
+"eligible voter <i>%(voter_name)s</i>.\n"
+"                "
+msgstr ""
+"\n"
+"                Dit is een <b>gesloten</b> verkiezing. Je bent aangemeld als "
+"geldige kiezer <i>%(voter_name)s</i>.\n"
+"              "
+
+#: helios/templates/election_view.html:156
+#, python-format
+msgid ""
+"\n"
+"                  This election is scheduled to start at "
+"%(voting_starts_at)s.\n"
+"                "
+msgstr ""
+"\n"
+"                  Deze verkiezing begint op %(voting_starts_at)s.\n"
+"                "
+
+#: helios/templates/election_view.html:160
+msgid "Voting is not yet open."
+msgstr "De verkiezing is nog niet begonnen."
+
+#: helios/templates/election_view.html:168
+msgid "You are registered to vote in this election."
+msgstr "Je bent geregistreerd om te stemmen in deze verkiezing."
+
+#: helios/templates/election_view.html:168
+#, python-format
+msgid "Your voter alias is %(voter_alias)s."
+msgstr "Je alias is %(voter_alias)s."
+
+#: helios/templates/election_view.html:175
+msgid "You are eligible to vote in this election."
+msgstr "Je komt in aanmerking om te stemmen in deze verkiezing."
+
+#: helios/templates/election_view.html:177
+#: helios/templates/election_view.html:180
+msgid "You are <i>not eligible</i> to vote in this election."
+msgstr "Je komt <i>niet in aanmerking</i> om te stemmen in deze verkiezing."
+
+#: helios/templates/election_view.html:188
+msgid "Who can vote?"
+msgstr "Wie kan stemmen?"
+
+#: helios/templates/election_view.html:193
+msgid "Anyone can vote in this election."
+msgstr "Iedereen mag stemmen in deze verkiezing."
+
+#: helios/templates/election_view.html:201
+msgid "Audit"
+msgstr "Audit"
+
+#: helios/templates/election_view.html:204
+msgid "Ballot Tracking Center"
+msgstr "Ballot Tracking Center"
+
+#: helios/templates/election_view.html:205
+msgid "Audited Ballots"
+msgstr "Geaudite biljetten"
+
+#: helios/templates/election_view.html:208
+msgid "Preview Booth"
+msgstr "Voorbeeldweergave van het stemhokje"
+
+#: helios/templates/election_view.html:214
+msgid "Verify Election Tally"
+msgstr "Verifieer de telling"
+
+#: helios/templates/election_view.html:217
+msgid "Review the Voting Booth"
+msgstr "Inspecteer het stemhokje"
+
+#: helios/templates/election_view.html:222
+msgid "Election URL"
+msgstr "Verkiezings-URL"
+
+#: helios/templates/election_view.html:226
+msgid "Election Fingerprint"
+msgstr "Kenmerk van de verkiezing"

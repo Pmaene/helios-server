@@ -10,6 +10,7 @@ from django.db import models, transaction
 import json
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils.translation import ugettext as _
 
 import datetime
 import logging
@@ -317,7 +318,7 @@ class Election(HeliosModel):
     @property
     def pretty_eligibility(self):
         if not self.eligibility:
-            return 'Anyone!'
+            return _('Anyone!')
         else:
             i = 0
 
@@ -330,7 +331,7 @@ class Election(HeliosModel):
                     for one_constraint in constraint['constraint']:
                         return_val += "%s" % AUTH_SYSTEMS[constraint['auth_system']].pretty_eligibility(one_constraint)
                 else:
-                    return_val += "Any %s user" % constraint['auth_system'].capitalize()
+                    return_val += _("Any %s user") % constraint['auth_system'].capitalize()
 
                 i += 1
                 if i < len(self.eligibility):
