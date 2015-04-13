@@ -574,9 +574,9 @@
 
       var localized_url = BOOTH.election.cast_url;
       if (!/\/[a-z]{2}\/helios\//.test(BOOTH.election.cast_url)) {
-        localized_url = BOOTH.election.cast_url.replace('helios', language + '/helios');
+        localized_url = BOOTH.election.cast_url.replace('/helios', '/' + language + '/helios');
       } else {
-        localized_url = BOOTH.election.cast_url.replace(/\/[a-z]{2}\/helios\//, language + '/helios');
+        localized_url = BOOTH.election.cast_url.replace(/\/[a-z]{2}\/helios/, '/' + language + '/helios');
       }
 
       return localized_url;
