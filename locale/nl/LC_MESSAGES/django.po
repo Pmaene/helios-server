@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-13 19:06+0200\n"
+"POT-Creation-Date: 2015-04-13 21:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: helios/forms.py:56
+msgid "Voter ID"
+msgstr "Kiezers-ID"
+
+#: helios/forms.py:57 helios/templates/password_voter_login.html:32
+msgid "Password"
+msgstr "Wachtwoord"
 
 #: helios/models.py:321
 msgid "Anyone!"
@@ -112,12 +120,13 @@ msgstr ""
 #: helios/templates/election_cast_confirm.html:110
 msgid "Please provide the voter ID and password you received by email."
 msgstr ""
-"Gelieve het voter ID en wachtwoord in te geven die je ontvangen hebt via "
+"Gelieve het kiezers-ID en wachtwoord in te geven die je ontvangen hebt via "
 "email."
 
 #: helios/templates/election_cast_confirm.html:115
+#: helios/templates/password_voter_login.html:20
 msgid "Bad voter ID or password, please try again."
-msgstr "Foutief voter ID of password, gelieve opnieuw te proberen."
+msgstr "Foutief kiezers-ID of password, gelieve opnieuw te proberen."
 
 #: helios/templates/election_cast_confirm.html:126
 msgid "Confirm Your Ballot"
@@ -393,3 +402,65 @@ msgstr "Verkiezings-URL"
 #: helios/templates/election_view.html:226
 msgid "Election Fingerprint"
 msgstr "Kenmerk van de verkiezing"
+
+#: helios/templates/password_voter_login.html:5
+#, fuzzy
+msgid "Log In to View Election"
+msgstr "Stem in deze verkiezing"
+
+#: helios/templates/password_voter_login.html:10
+msgid "Private Election&mdash;Please Log In"
+msgstr "Gesloten verkiezing&mdash;gelieve in te loggen"
+
+#: helios/templates/password_voter_login.html:13
+#, python-format
+msgid ""
+"\n"
+"          This election, with fingerprint <tt>%(hash)s</tt>, is private, and "
+"can only be viewed by eligible voters. If they were given, please provide "
+"the voter ID and password you received by email. It is also possible that "
+"the email mentioned one of the third-party providers.\n"
+"        "
+msgstr ""
+"\n"
+"          Deze verkiezing, met kenmerk <tt>%(hash)s</tt>, is gesloten, en "
+"kan alleen bekeken worden door geldige kiezers. Als je een email ontvangen "
+"hebt met een kiezers-ID en wachtwoord, gelieve ze dan hier in te geven. Het "
+"is ook mogelijk dat de email &eacute;&eacute;n van de third-party providers "
+"vermeldde.        "
+
+#: helios/templates/password_voter_login.html:24
+msgid "Log In to Start Voting"
+msgstr "Log in om te beginnen met stemmen"
+
+#: helios/templates/password_voter_login.html:43
+#: server_ui/templates/base.html:91
+msgid "Log In"
+msgstr "Inloggen"
+
+#: server_ui/templates/base.html:85
+#, python-format
+msgid "Logged in as <b>%(user)s</b>."
+msgstr "Ingelogd als <b>%(user)s</b>."
+
+#: server_ui/templates/base.html:85 server_ui/templates/base.html.py:88
+msgid "Logout"
+msgstr "Uitloggen"
+
+#: server_ui/templates/base.html:88
+msgid "Logged in as voter"
+msgstr "Ingelogd als kiezer"
+
+#: server_ui/templates/base.html:88
+#, python-format
+msgid "in election <b>%(election)s</b>."
+msgstr "in verkiezing <b>%(election)s</b>."
+
+#: server_ui/templates/base.html:91
+msgid "Not logged in."
+msgstr "Niet ingelogd."
+
+#: server_ui/templates/base.html:93
+msgid "Powered by <a href=\"http://heliosvoting.org\">Helios Voting</a>."
+msgstr ""
+"Mogelijk gemaakt door <a href=\"http://heliosvoting.org\">Helios Voting</a>."
