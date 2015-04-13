@@ -423,7 +423,7 @@
         'encrypted_vote_json': BOOTH.encrypted_vote_json,
         'election_uuid': BOOTH.election.uuid,
         'election_hash': BOOTH.election.hash,
-        'cast_url': BOOTH.election.cast_url,
+        'cast_url': BOOTH.localize_cast_url(),
       });
       BOOTH.localize();
 
@@ -564,6 +564,15 @@
 
         $('[data-localize]').localize('vote', options);
       });
+
+      $('#send_ballot_form').attr('action', BOOTH.localize_cast_url());
+    };
+
+    BOOTH.localize_cast_url = function() {
+      // TODO: Resorted to hackery for the localization of the cast URL...
+
+      var language = window.location.hash.substring(1) != '' ? window.location.hash.substring(1, 3) : 'en';
+      return BOOTH.election.cast_url.replace('helios', language + '/helios')
     };
 
     $(window).bind('hashchange', function() {
@@ -571,6 +580,7 @@
         BOOTH.localize();
       }
     });
+
 
     $(document).ready(function() {
       var checking_capabilities_progress = new ProgressBar.Circle('#checking_capabilities_progress', {
