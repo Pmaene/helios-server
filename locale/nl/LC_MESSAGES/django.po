@@ -263,7 +263,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"              %(num_voters_cast)s van de %(num_voters)s kiezers bracht zijn "
+"              %(num_voters_cast)s van de %(num_voters)s kiezers brachten hun "
 "stem uit, of %(participation_percentage)s%%.\n"
 "            "
 

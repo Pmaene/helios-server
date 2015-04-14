@@ -375,7 +375,7 @@ class Election(HeliosModel):
     @property
     def issues_before_freeze(self):
         issues = []
-        
+
         trustees = Trustee.get_by_election(self)
         if len(trustees) == 0:
             issues.append({
