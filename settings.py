@@ -23,7 +23,7 @@ MANAGERS = ADMINS
 MASTER_HELIOS = (get_from_env('MASTER_HELIOS', '0') == '1')
 
 # Show ability to log in? For example, if the site is mostly used by voters.
-# If turned off, the admin will need to know to go to /auth/login manually.
+# If turned off, the admin will need to know to go to /helios_auth manually.
 SHOW_LOGIN_OPTIONS = (get_from_env('SHOW_LOGIN_OPTIONS', '1') == '1')
 
 # Sometimes, when the site is not that social, it's not helpful
