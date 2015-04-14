@@ -30,10 +30,8 @@ for trustee in trustees:
 threshold_scheme = ThresholdScheme.objects.get(election=source_election)
 
 destination_threshold_scheme = copy.deepcopy(threshold_scheme)
-
 destination_threshold_scheme.id = None
 destination_threshold_scheme.election = destination_election
-
 destination_threshold_scheme.save()
 
 destination_election.frozen_trustee_list = True
