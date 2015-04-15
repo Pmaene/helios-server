@@ -301,7 +301,7 @@ def one_election_schedule(request, election):
     return HttpResponse("foo")
 
 
-@election_view()
+@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
 @return_json
 def one_election(request, election):
     if not election:
@@ -309,7 +309,7 @@ def one_election(request, election):
     return election.toJSONDict(complete=True)
 
 
-@election_view()
+@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
 @return_json
 def one_election_meta(request, election):
     if not election:
