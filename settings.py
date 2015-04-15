@@ -101,7 +101,7 @@ if (get_from_env('HSTS', '0') == '1'):
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-ALLOW_HOSTS = get_from_env('AUTH_ENABLED_AUTH_SYSTEMS', 'localhost').split(',')
+ALLOWED_HOSTS = get_from_env('ALLOWED_HOSTS', 'localhost').split(',')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
