@@ -2,8 +2,8 @@
   "banner" : "Helios Voting Booth",
 
   "progress_1" : "(1) Select",
-  "progress_2" : "(2) Review",
-  "progress_3" : "(3) Submit",
+  "progress_2" : "(2) Encrypt",
+  "progress_3" : "(3) Review",
 
   "checking_capabilities" : "Checking capabilities and loading election booth...",
   "checking_capabilities_seconds" : "This may take up to 10 seconds.",
@@ -36,14 +36,15 @@
   "confirm_optional" : "(Optional)",
   "confirm_auditbody_1" : "If you choose, you can audit your ballot and reveal how your choices were encrypted.",
   "confirm_auditbody_2" : "You will then be guided to re-encrypt your choices for final casting.",
-  "confirm_review" : "Verify Encryption",
-  "confirm_verify" : "Review Your Ballot",
+  "confirm_review" : "Review Your Ballot",
+  "confirm_verify" : "Verify Encryption",
   "confirm_note_tracker" : "You can take note of your <i>smart ballot tracker</i>",
   "confirm_print" : "Print",
   "confirm_choices" : "Choices",
   "confirm_undervoted_pre" : "You under-voted: you may select up to ",
   "confirm_undervoted_post" : "",
   "confirm_edit" : "Edit",
+  "confirm_confirm_explanation" : "After clicking the button below, you will be redirected to a different page where you will be asked to login before you can submit your ballot.",
   "confirm_confirm" : "Confirm Choices",
 
   "audit_audit" : "Your Audited Ballot",

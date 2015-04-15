@@ -98,8 +98,7 @@
         BOOTH.launch_async_encryption_answer(ea_num);
       });
 
-      BOOTH.encrypting_progress = [];
-      encrypting_progress.set(0);
+      BOOTH.reset_encrypting_progress();
     };
 
     BOOTH.log = function(msg) {
@@ -242,6 +241,7 @@
     };
 
     BOOTH.validate_and_confirm = function(question_num) {
+      BOOTH.show_progress(2);
       if (BOOTH.validate_question(question_num))
         BOOTH.seal_ballot();
     };
@@ -277,6 +277,7 @@
 
     BOOTH.show_question = function(question_num) {
       BOOTH.started_p = true;
+      BOOTH.reset_encrypting_progress();
 
       // the first time we hit the last question, we enable the review all button
       if (question_num == BOOTH.election.questions.length -1)
@@ -427,7 +428,7 @@
       });
       BOOTH.localize();
 
-      BOOTH.show_progress(2);
+      BOOTH.show_progress(3);
     };
 
     BOOTH.after_ballot_encryption = function() {
@@ -588,6 +589,10 @@
       }
     });
 
+    BOOTH.reset_encrypting_progress = function() {
+        BOOTH.encrypting_progress = [];
+        encrypting_progress.set(0);
+    }
 
     $(document).ready(function() {
       var checking_capabilities_progress = new ProgressBar.Circle('#checking_capabilities_progress', {
@@ -642,8 +647,8 @@
             <table width="100%">
               <tr>
                 <td id="progress_1" data-localize="progress_1">(1) Select</td>
-                <td id="progress_2" data-localize="progress_2">(2) Review</td>
-                <td id="progress_3" data-localize="progress_3">(3) Submit</td>
+                <td id="progress_2" data-localize="progress_2">(2) Encrypt</td>
+                <td id="progress_3" data-localize="progress_3">(3) Review</td>
               </tr>
             </table>
           </div>

@@ -2,8 +2,8 @@
   "banner" : "Helios Stemhokje",
 
   "progress_1" : "(1) Aanduiden",
-  "progress_2" : "(2) Verif&euml;ren",
-  "progress_3" : "(3) Indienen",
+  "progress_2" : "(2) Encryptere",
+  "progress_3" : "(3) Controle",
 
   "checking_capabilities" : "Het stemhokje wordt geladen...",
   "checking_capabilities_seconds" : "Dit kan tot tien seconden duren.",
@@ -44,6 +44,7 @@
   "confirm_undervoted_pre" : "Je hebt minder dan het toegelaten aantal opties aangeduid (maximaal ",
   "confirm_undervoted_post" : ")",
   "confirm_edit" : "Aanpassen",
+  "confirm_confirm_explanation" : "Nadat je op de knop hieronder klikt, zal je doorgestuurd worden naar een andere pagina waar je gevraagd zal worden om in te loggen vooraleer je je biljet kan indienen.",
   "confirm_confirm" : "Keuzes bevestigen",
 
   "audit_audit" : "Je geaudit biljet",

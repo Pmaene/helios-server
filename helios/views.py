@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from django.http import *
 from django.db import transaction
+from django.utils import translation
 
 from mimetypes import guess_type
 
@@ -168,12 +169,12 @@ def election_shortcut(request, election_short_name):
         raise Http404
 
 
-@election_view()
+@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
 def _election_vote_shortcut(request, election):
     """
     a hidden view behind the shortcut that performs the actual perm check
     """
-    vote_url = "%s/booth/vote.html?%s" % (settings.SECURE_URL_HOST, urllib.urlencode({'election_url': reverse(one_election, args=[election.uuid])}))
+    vote_url = "%s/booth/vote.html?%s#%s" % (settings.SECURE_URL_HOST, urllib.urlencode({'election_url': reverse(one_election, args=[election.uuid])}), translation.get_language())
 
     test_cookie_url = "%s?%s" % (settings.SECURE_URL_HOST + reverse(test_cookie), urllib.urlencode({'continue_url': vote_url}))
 
@@ -984,7 +985,7 @@ def post_audited_ballot(request, election):
 
 
 # we don't require frozen election to allow for ballot preview
-@election_view()
+@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
 def one_election_cast(request, election):
     """
     on a GET, this is a cancellation, on a POST it's a cast
