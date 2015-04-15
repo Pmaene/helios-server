@@ -54,12 +54,12 @@
 
                   <p>
                     {% blocktrans %}
-                      We have received, <b>but not yet recorded</b>, your encrypted ballot. <b>To upload your encrypted ballot to the server, please click on the button below.</b>
+                      We have received, <b>but not yet recorded</b>, your encrypted ballot. <b>To upload your encrypted ballot to the server, please click on the button below.</b> If you cancel now, your ballot will <b>not</b> be recorded. You can start the voting process over again, of course.
                     {% endblocktrans %}
                   </p>
 
                   <div align="center">
-                    <button type="submit" class="remove_unload">{% blocktrans with voter=voter.display_html_big|safe %}I am <u>{{voter}}</u>, submit my vote!{% endblocktrans %}</button>
+                    <button type="submit" class="remove_unload">{% blocktrans with voter=voter.display_html_big|safe %}I am <u>{{voter}}</u>, submit my vote!{% endblocktrans %}</button><a class="button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Cancel" %}</a>
                   </div>
 
                   <div id="waiting_div">
@@ -76,14 +76,6 @@
                     {% trans "You can cast as many ballots as you want: only the last one counts." %}
                   </div>
                 </form>
-
-                <p>
-                  {% blocktrans %}
-                    If you cancel now, your ballot will <b>not</b> be recorded. You can start the voting process over again, of course.
-                  {% endblocktrans %}
-                </p>
-
-                <a class="tiny secondary button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Cancel" %}</a>
               </div>
             {% else %}
               <div data-alert class="alert-box warning">

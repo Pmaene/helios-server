@@ -85,7 +85,7 @@ def get_election_govote_url(election):
 
 
 def get_castvote_url(cast_vote):
-    return settings.URL_HOST + reverse(castvote_shortcut, args=[cast_vote.vote_tinyhash])
+    return settings.URL_HOST + re.match(r'(/[^/]*)(/.*$)', reverse(castvote_shortcut, args=[cast_vote.vote_tinyhash])).groups()[1]
 
 
 ##
@@ -994,8 +994,9 @@ def one_election_cast(request, election):
         return HttpResponseRedirect("%s%s" % (settings.SECURE_URL_HOST, reverse(one_election_view, args=[election.uuid])))
 
     user = get_user(request)
-    encrypted_vote = request.POST['encrypted_vote']
+    request.session['django_language'] = translation.get_language()
 
+    encrypted_vote = request.POST['encrypted_vote']
     save_in_session_across_logouts(request, 'encrypted_vote', encrypted_vote)
 
     return HttpResponseRedirect("%s%s" % (settings.SECURE_URL_HOST, reverse(one_election_cast_confirm, args=[election.uuid])))
@@ -1020,6 +1021,9 @@ def password_voter_login(request, election):
         password_login_form = None
         if 'password' in settings.AUTH_ENABLED_AUTH_SYSTEMS:
             password_login_form = forms.VoterPasswordForm()
+        else:
+            if len(settings.AUTH_ENABLED_AUTH_SYSTEMS) == 1:
+                return HttpResponseRedirect("%s%s?return_url=%s" % (settings.SECURE_URL_HOST, reverse(auth_views.start, args=[settings.AUTH_ENABLED_AUTH_SYSTEMS[0]]), return_url))
 
         auth_systems = copy.copy(settings.AUTH_ENABLED_AUTH_SYSTEMS)
         try:
