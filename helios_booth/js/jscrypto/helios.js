@@ -73,7 +73,7 @@ HELIOS.Election = Class.extend({
       use_voter_aliases: this.use_voter_aliases,
       voting_starts_at: this.voting_starts_at,
       voting_ends_at: this.voting_ends_at,
-      election_type: this.election_type,
+      election_type: this.election_type
     };
 
     return UTILS.object_sort_keys(json_obj);

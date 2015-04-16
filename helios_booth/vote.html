@@ -424,7 +424,7 @@
         'encrypted_vote_json': BOOTH.encrypted_vote_json,
         'election_uuid': BOOTH.election.uuid,
         'election_hash': BOOTH.election.hash,
-        'cast_url': BOOTH.localize_cast_url(),
+        'cast_url': BOOTH.localize_cast_url()
       });
       BOOTH.localize();
 
@@ -493,23 +493,24 @@
 
     BOOTH.request_ballot_encryption = function() {
       // encryption on server side
-      $.post(BOOTH.election_url + '/encrypt-ballot', {'answers_json': $.toJSON(BOOTH.ballot.answers)}, function(result) {
+      $.post(BOOTH.election_url + '/encrypt-ballot', {'answers_json': JSON.stringify(BOOTH.ballot.answers)}, function(result) {
         // rather than deserialize and reserialize, which is inherently slow on browsers
         // that already need to do network requests, just remove the plaintexts
-        BOOTH.encrypted_ballot_with_plaintexts_serialized = result;
-        var ballot_json_obj = $.secureEvalJSON(BOOTH.encrypted_ballot_with_plaintexts_serialized);
+        BOOTH.encrypted_ballot_with_plaintexts_serialized = JSON.stringify(result);
+        var ballot_json_obj = result;
         var answers = ballot_json_obj.answers;
         for (var i = 0; i < answers.length; i++) {
           delete answers[i]['answer'];
           delete answers[i]['randomness'];
         }
 
-        BOOTH.encrypted_ballot_serialized = $.toJSON(ballot_json_obj);
+        BOOTH.encrypted_ballot_serialized = JSON.stringify(ballot_json_obj);
         BOOTH.after_ballot_encryption();
       });
     };
 
     BOOTH.audit_ballot = function() {
+      console.log()
       BOOTH.audit_trail = BOOTH.encrypted_ballot_with_plaintexts_serialized || JSON.stringify(BOOTH.encrypted_ballot.get_audit_trail());
       BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : BOOTH.audit_trail, 'election_url' : BOOTH.election_url});
       BOOTH.localize();
@@ -590,30 +591,30 @@
     });
 
     BOOTH.reset_encrypting_progress = function() {
-        BOOTH.encrypting_progress = [];
-        encrypting_progress.set(0);
+      BOOTH.encrypting_progress = [];
+      encrypting_progress.set(0);
     }
 
     $(document).ready(function() {
       var checking_capabilities_progress = new ProgressBar.Circle('#checking_capabilities_progress', {
-          color: '#000',
-          trailColor: '#ddd',
-          strokeWidth: 10,
-          easing: 'easeInOut'
+        color: '#000',
+        trailColor: '#ddd',
+        strokeWidth: 10,
+        easing: 'easeInOut'
       });
       checking_capabilities_progress.set(0.25);
 
       encrypting_progress = new ProgressBar.Circle('#encrypting_progress', {
-          color: '#000',
-          trailColor: '#ddd',
-          strokeWidth: 5,
-          easing: 'easeInOut',
-          text: {
-            value: '0%'
-          },
-          step: function(state, bar) {
-            bar.setText((bar.value() * 100).toFixed(0) + '%');
-          }
+        color: '#000',
+        trailColor: '#ddd',
+        strokeWidth: 5,
+        easing: 'easeInOut',
+        text: {
+          value: '0%'
+        },
+        step: function(state, bar) {
+          bar.setText((bar.value() * 100).toFixed(0) + '%');
+        }
       });
 
       if (USE_SJCL)
@@ -632,6 +633,20 @@
       BigInt.setup(BOOTH.so_lets_go, BOOTH.nojava);
     });
   </script>
+
+  <!--[if lte IE 9]>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#encrypting_progress').html('')
+        encrypting_progress = new ProgressBar.Circle('#encrypting_progress', {
+          color: '#000',
+          trailColor: '#ddd',
+          strokeWidth: 5,
+          easing: 'easeInOut'
+        });
+      });
+    </script>
+  <![endif]-->
 </head>
 
 <body>
