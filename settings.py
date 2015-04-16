@@ -118,6 +118,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 
     'django.middleware.locale.LocaleMiddleware',
+
+    # kuleuven.be is on Microsoft's compatibility list and we don't want to
+    # drop to the IE7 renderer
+    'compatibility.XUACompatibleMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
