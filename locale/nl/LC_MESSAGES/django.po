@@ -120,7 +120,7 @@ msgstr "Foutief kiezers-ID of password, gelieve opnieuw te proberen."
 
 #: helios/templates/election_cast_confirm.html:118
 msgid "Confirm Your Ballot"
-msgstr "Bevestig je stem"
+msgstr "bevestig je stem"
 
 #: helios/templates/election_cast_confirm.html:125
 msgid "Sorry, you are <i>not eligible</i> for this election."

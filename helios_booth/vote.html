@@ -621,7 +621,7 @@
           value: '0%'
         },
         step: function(state, bar) {
-          bar.setText((bar.value() * 100).toFixed(0) + '%');
+          bar.setText(((bar.value() < 0 ? 0 : bar.value()) * 100).toFixed(0) + '%');
         }
       });
 
