@@ -567,6 +567,12 @@
       });
 
       $('#send_ballot_form').attr('action', BOOTH.localize_cast_url());
+
+      // show a warning we can't encrypt the vote in the browser
+      if (!BigInt.in_browser) {
+        $('#bigint_in_browser').hide();
+        $('#not_bigint_in_browser').show();
+      }
     };
 
     BOOTH.localize_cast_url = function() {

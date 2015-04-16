@@ -13,7 +13,7 @@
 
   "election_intro" : "Om je stem uit te brengen, zal je door de volgende stappen geleid worden. Wanneer je nog niet aangemeld bent, zal je dit op het einde van het proces kunnen doen.",
   "election_1" : "<b>Selectie</b> van je keuzes.<br /><span style=\"font-size: 14pt;\">Je kan eenvoudig navigeren tussen de vragen.</span>",
-  "election_2" : "<b>Encryptie</b> van je stem.<br /><span style=\"font-size: 14pt;\">Je stem zal ge&euml;ncrypteerd worden in je browser en niet op onze servers.</span>",
+  "election_2" : "<b>Encryptie</b> van je stem.<br /><span id=\"bigint_in_browser\" style=\"font-size: 14pt;\">Je stem zal ge&euml;ncrypteerd worden in je browser en niet op onze servers.</span><span id=\"not_bigint_in_browser\" style=\"font-size: 14pt; color: red; display: none;\">Je browser heeft de vereiste functionaliteit niet om je stem zelf te encrypteren en zal deze dus naar de server sturen voor de encryptie. Gelieve een recentere browser te gebruiken indien je dit niet wilt.</span>",
   "election_3" : "<b>Verificatie &amp; bevestiging</b> van je keuzes.<br /><span style=\"font-size: 14pt;\">Je kan je keuzes nakijken en krijgt een <i>smart ballot tracker</i>.</span>",
   "election_start" : "Start",
 
