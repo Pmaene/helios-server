@@ -30,11 +30,14 @@
   <script language="javascript" src="js/jscrypto/helios.js"></script>
 
   <script language="javascript">
-    // progress
-    var encrypting_progress = null;
-
-    // utils
+    // booth
     BOOTH = {};
+
+    // set up the message when navigating away
+    BOOTH.started_p = false;
+
+    // progress
+    BOOTH.encrypting_progress = null;
 
     BOOTH.setup_templates = function() {
       if (BOOTH.templates_setup_p)
@@ -51,9 +54,6 @@
 
       BOOTH.templates_setup_p = true;
     };
-
-    // set up the message when navigating away
-    BOOTH.started_p = false;
 
     window.onbeforeunload = function(e) {
       if (!BOOTH.started_p)
@@ -112,9 +112,9 @@
         // prepare spots for encrypted answers
         // and one worker per question
         BOOTH.encrypted_answers = [];
-        BOOTH.encrypting_progress = [];
         BOOTH.answer_timestamps = [];
         BOOTH.workers = [];
+        BOOTH.workers_progress = [];
         $(BOOTH.election.questions).each(function(q_num, q) {
           BOOTH.encrypted_answers[q_num] = null;
           var new_worker = new window.Worker('boothworker.js');
@@ -131,7 +131,7 @@
 
             // progress
             if (event.data.type == 'progress')
-              BOOTH.encrypting_progress[q_num] = event.data.progress
+              BOOTH.workers_progress[q_num] = event.data.progress
 
             // result of encryption
             if (event.data.type == 'result') {
@@ -453,15 +453,15 @@
           total_encryptions += question.answers.length;
         });
 
-        if (BOOTH.encrypting_progress.length > 0) {
-          var encryptions_done = BOOTH.encrypting_progress.reduce(function(a, b) {
+        if (BOOTH.workers_progress.length > 0) {
+          var encryptions_done = BOOTH.workers_progress.reduce(function(a, b) {
             return a + b;
           });
         }
 
         var percentage_done = encryptions_done / total_encryptions;
 
-        encrypting_progress.animate(percentage_done);
+        BOOTH.encrypting_progress.animate(percentage_done);
         return;
       }
 
@@ -477,7 +477,6 @@
         BOOTH.show_encryption_message_before(BOOTH.request_ballot_encryption, true);
       } else {
         BOOTH.show_encryption_message_before(BOOTH.seal_ballot_raw, true);
-        $('#percent_done_container').show();
       }
     };
 
@@ -510,7 +509,6 @@
     };
 
     BOOTH.audit_ballot = function() {
-      console.log()
       BOOTH.audit_trail = BOOTH.encrypted_ballot_with_plaintexts_serialized || JSON.stringify(BOOTH.encrypted_ballot.get_audit_trail());
       BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : BOOTH.audit_trail, 'election_url' : BOOTH.election_url});
       BOOTH.localize();
@@ -591,8 +589,8 @@
     });
 
     BOOTH.reset_encrypting_progress = function() {
-      BOOTH.encrypting_progress = [];
-      encrypting_progress.set(0);
+      BOOTH.workers_progress = [];
+      BOOTH.encrypting_progress.set(0);
     }
 
     $(document).ready(function() {
@@ -604,7 +602,7 @@
       });
       checking_capabilities_progress.set(0.25);
 
-      encrypting_progress = new ProgressBar.Circle('#encrypting_progress', {
+      BOOTH.encrypting_progress = new ProgressBar.Circle('#encrypting_progress', {
         color: '#000',
         trailColor: '#ddd',
         strokeWidth: 5,
@@ -636,15 +634,17 @@
 
   <!--[if lte IE 9]>
     <script type="text/javascript">
+      BOOTH.reset_encrypting_progress = function() {};
+
       $(document).ready(function() {
-        $('#encrypting_progress').html('')
-        encrypting_progress = new ProgressBar.Circle('#encrypting_progress', {
+        $('#encrypting_progress').html('');
+
+        BOOTH.encrypting_progress = new ProgressBar.Circle('#encrypting_progress', {
           color: '#000',
           trailColor: '#ddd',
           strokeWidth: 5,
           easing: 'easeInOut'
         });
-        encrypting_progress.set(0.25);
       });
     </script>
   <![endif]-->
