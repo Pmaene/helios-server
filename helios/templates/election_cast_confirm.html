@@ -58,6 +58,10 @@
                     {% endblocktrans %}
                   </p>
 
+                  <div class="panel callout">
+                    {% trans "You can cast as many ballots as you want: only the last one counts." %}
+                  </div>
+
                   <div align="center">
                     <button type="submit" class="remove_unload">{% blocktrans with voter=voter.display_html_big|safe %}I am <u>{{voter}}</u>, submit my vote!{% endblocktrans %}</button><br /><a class="small secondary button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Cancel" %}</a>
                   </div>
@@ -70,10 +74,6 @@
                     <p class="text-center">
                       <img src="/static/helios/loading.gif" />
                     </p>
-                  </div>
-
-                  <div class="panel callout">
-                    {% trans "You can cast as many ballots as you want: only the last one counts." %}
                   </div>
                 </form>
               </div>
