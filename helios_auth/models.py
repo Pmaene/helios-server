@@ -13,6 +13,8 @@ from jsonfield import JSONField
 import datetime
 import logging
 
+import settings
+
 from auth_systems import AUTH_SYSTEMS, can_check_constraint, can_list_categories
 
 # an exception to catch when a user is no longer authenticated
@@ -160,7 +162,7 @@ class User(models.Model):
             name_display = self.pretty_name
 
         img = ''
-        if len(AUTH_SYSTEMS) > 1:
+        if len(settings.AUTH_ENABLED_AUTH_SYSTEMS) > 1:
             img = """<img class="%s-logo" src="/static/helios_auth/login-icons/%s.png" alt="%s" /> """ % (size, self.user_type, self.user_type)
 
         return """%s%s""" % (img, name_display)
