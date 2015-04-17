@@ -22,9 +22,11 @@
         </p>
       </div>
 
-      <p>
-        <iframe src="{{socialbuttons_url}}" frameborder="0" border="0" style="width: 300px; height: 35px;" scrolling="no" align="middle"></iframe>
-      </p>
+      {% if show_socialbuttons %}
+        <p>
+          <iframe src="{{socialbuttons_url}}" frameborder="0" border="0" style="width: 300px; height: 35px;" scrolling="no" align="middle"></iframe>
+        </p>
+      {% endif %}
 
       {% if logout %}
         <div data-alert class="alert-box info">

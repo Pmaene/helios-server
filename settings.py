@@ -188,7 +188,10 @@ SECURE_URL_HOST = get_from_env('SECURE_URL_HOST', URL_HOST).rstrip('/')
 # which usually involve hooking in remote JavaScript, which could be
 # a security issue. Plus, if there's a loading issue, it blocks the whole
 # page. Not cool.
-SOCIALBUTTONS_URL_HOST= get_from_env('SOCIALBUTTONS_URL_HOST', SECURE_URL_HOST).rstrip('/')
+SOCIALBUTTONS_URL_HOST = get_from_env('SOCIALBUTTONS_URL_HOST', SECURE_URL_HOST).rstrip('/')
+
+# In case we don't want to show the social buttons.
+SHOW_SOCIALBUTTONS = (get_from_env('SHOW_SOCIALBUTTONS', '1') == '1')
 
 SITE_TITLE = get_from_env('SITE_TITLE', 'Helios Voting')
 MAIN_LOGO_URL = get_from_env('MAIN_LOGO_URL', '/static/logo.png')

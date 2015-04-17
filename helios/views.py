@@ -1256,6 +1256,7 @@ def one_election_cast_done(request, election):
             'election': election,
             'vote_hash': vote_hash,
             'logout': logout,
+            'show_socialbuttons': settings.SHOW_SOCIALBUTTONS,
             'socialbuttons_url': socialbuttons_url
         },
         include_user=(not logout)
