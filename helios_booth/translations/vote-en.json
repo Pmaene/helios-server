@@ -13,7 +13,7 @@
 
   "election_intro" : "To cast a vote, you will be led through the following steps. If you have not yet logged in, you will be asked to do so at the very end of the process.",
   "election_1" : "<b>Select</b> your preferred options.<br /><span style=\"font-size: 14pt;\">You can easily navigate forwards and backwards.</span>",
-  "election_2" : "<b>Encrypt</b> your vote.<br /><span id=\"bigint_in_browser\" style=\"font-size: 14pt;\">Your vote will be encrypted inside your browser (not on our server).</span><span id=\"not_bigint_in_browser\" style=\"font-size: 14pt; color: red; display: none;\">Your browser does not have the required capbilities to encrypt the vote itself and will therefore send it to our server for encryption. Please use a more recent browser if you don't want this.</span>",
+  "election_2" : "<b>Encrypt</b> your vote.<br /><span id=\"bigint_in_browser\" style=\"font-size: 14pt;\">Your vote will be encrypted inside your browser (not on our server).</span><span id=\"not_bigint_in_browser\" style=\"font-size: 14pt; color: red; display: none;\">Your browser does not have the required capabilities to encrypt the vote itself and will therefore send it to our server for encryption, so the secrecy of your vote is not guaranteed. Please use a more recent browser if you don't want this.</span>",
   "election_3" : "<b>Review &amp; confirm</b> your choices.<br /><span style=\"font-size: 14pt;\">You can verify your choices and you get a <i>smart ballot tracker</i>.</span>",
   "election_start" : "Start",
 
