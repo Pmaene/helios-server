@@ -44,12 +44,12 @@
       <li class="unavailable">&hellip;</li>
     {% endif %}
 
-    <li {% ifequal page.number paginator.num_pages %}class="current"{% endifequal %}><a href="?page={{audited_ballots_paginator.num_pages}}&limit={{limit}}&q={{q|urlencode}}">{{audited_ballots_paginator.num_pages}}</a></li>
+    <li {% ifequal page.number paginator.num_pages %}class="current"{% endifequal %}><a href="?page={{paginator.num_pages}}&limit={{limit}}&q={{q|urlencode}}">{{paginator.num_pages}}</a></li>
   {% endif %}
 
-  {% if audited_ballots_page.has_next %}
+  {% if page.has_next %}
     <li class="arrow">
-      <a href="?page={{audited_ballots_page.next_page_number}}&limit={{limit}}">&raquo;</a>
+      <a href="?page={{page.next_page_number}}&limit={{limit}}">&raquo;</a>
     </li>
   {% else %}
     <li class="arrow unavailable">&raquo;</li>
