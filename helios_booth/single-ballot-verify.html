@@ -92,15 +92,15 @@
     }
 
     $(document).ready(function() {
-      BigInt.setup(function() {
-        var verifying_progress = new ProgressBar.Circle('#verifying_progress', {
-            color: '#000',
-            trailColor: '#ddd',
-            strokeWidth: 10,
-            easing: 'easeInOut'
-        });
-        verifying_progress.set(0.25);
+      var verifying_progress = new ProgressBar.Circle('#verifying_progress', {
+          color: '#000',
+          trailColor: '#ddd',
+          strokeWidth: 10,
+          easing: 'easeInOut'
+      });
+      verifying_progress.set(0.25);
 
+      BigInt.setup(function() {
         $('#verifier_loading').hide();
 
         if (BigInt.is_dummy) {
@@ -114,6 +114,10 @@
       }, function() {
         $('#dummy_bigint').show();
       });
+
+      if (!window.Worker) {
+        $('#synchronous_warning').show();
+      }
     });
   </script>
 </head>
@@ -130,7 +134,7 @@
           Loading verifier...
         </div>
 
-        <div id="dummy_bigint" style="display:none;">
+        <div id="dummy_bigint" style="display: none;">
           Your browser does not have the Java plugin installed. At this time, the Java plugin is required for browser-based ballot auditing, although it is not required for ballot preparation.
         </div>
 
@@ -147,6 +151,10 @@
               Your Ballot
               <br />
               <textarea name="audit_trail" cols="80" rows="7"></textarea>
+            </p>
+
+            <p id="synchronous_warning" style="color: red; display: none;">
+              Since you are using an older browser, the verification process will freeze your browser and take a bit longer.
             </p>
 
             <input type="submit" class="pretty" value="Verify" />
