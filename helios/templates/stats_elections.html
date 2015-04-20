@@ -36,29 +36,11 @@
         </tbody>
       </table>
 
-      <div class="pagination-centered">
-        <ul class="pagination">
-          {% if elections_page.has_previous %}
-            <li class="arrow">
-              <a href="?page={{elections_page.previous_page_number}}&limit={{limit}}">&laquo;</a>
-            </li>
-          {% else %}
-            <li class="arrow unavailable">&laquo;</li>
-          {% endif %}
-
-          {% for page in elections_paginator.page_range %}
-            <li {% ifequal page elections_page.number %}class="current"{% endifequal %}><a href="?page={{page}}&limit={{limit}}">{{page}}</a></li>
-          {% endfor %}
-
-          {% if elections_page.has_next %}
-            <li class="arrow">
-              <a href="?page={{elections_page.next_page_number}}&limit={{limit}}">&raquo;</a>
-            </li>
-          {% else %}
-            <li class="arrow unavailable">&raquo;</li>
-          {% endif %}
-        </ul>
-      </div>
+      {% if elections %}
+        <div class="pagination-centered">
+          {% include "partials/pagination.html" with page=elections_page paginator=elections_paginator %}
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

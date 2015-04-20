@@ -193,27 +193,7 @@
 
       {% if voters %}
         <div class="pagination-centered">
-          <ul class="pagination">
-            {% if voters_page.has_previous %}
-              <li class="arrow">
-                <a href="?page={{voters_page.previous_page_number}}&limit={{limit}}&q={{q|urlencode}}">&laquo;</a>
-              </li>
-            {% else %}
-              <li class="arrow unavailable">&laquo;</li>
-            {% endif %}
-
-            {% for page in voters_paginator.page_range %}
-              <li {% ifequal page voters_page.number %}class="current"{% endifequal %}><a href="?page={{page}}&limit={{limit}}&q={{q|urlencode}}">{{page}}</a></li>
-            {% endfor %}
-
-            {% if voters_page.has_next %}
-              <li class="arrow">
-                <a href="?page={{voters_page.next_page_number}}&limit={{limit}}&q={{q|urlencode}}">&raquo;</a>
-              </li>
-            {% else %}
-              <li class="arrow unavailable">&raquo;</li>
-            {% endif %}
-          </ul>
+          {% include "partials/pagination.html" with page=voters_page paginator=voters_paginator %}
         </div>
       {% endif %}
     </div>
