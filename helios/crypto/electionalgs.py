@@ -228,9 +228,7 @@ class EncryptedAnswer(HeliosObject):
             algs.EGZKDisjunctiveProof.from_dict(p) for p in d['individual_proofs']]
 
         if d['overall_proof']:
-            ea.overall_proof = [
-                algs.EGZKDisjunctiveProof.from_dict(p) for p in d['overall_proof']]
-
+            ea.overall_proof = [algs.EGZKDisjunctiveProof.from_dict(d['overall_proof'])]
         else:
             ea.overall_proof = None
 

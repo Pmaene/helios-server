@@ -982,6 +982,8 @@ def post_audited_ballot(request, election):
 
         return SUCCESS
 
+    return FAILURE
+
 
 # we don't require frozen election to allow for ballot preview
 @election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
