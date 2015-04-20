@@ -256,11 +256,9 @@ class EGPublicKey:
         g^response = commitment * y^challenge
         """
         left_side = pow(self.g, dlog_proof.response, self.p)
-        right_side = (
-            dlog_proof.commitment * pow(self.y, dlog_proof.challenge, self.p)) % self.p
+        right_side = (dlog_proof.commitment * pow(self.y, dlog_proof.challenge, self.p)) % self.p
 
-        expected_challenge = challenge_generator(
-            dlog_proof.commitment) % self.q
+        expected_challenge = challenge_generator(dlog_proof.commitment) % self.q
 
         return ((left_side == right_side) and (dlog_proof.challenge == expected_challenge))
 
@@ -301,8 +299,7 @@ class EGSecretKey:
 
         dec_factor = self.decryption_factor(ciphertext)
 
-        proof = EGZKProof.generate(
-            self.pk.g, ciphertext.alpha, self.x, self.pk.p, self.pk.q, challenge_generator)
+        proof = EGZKProof.generate(self.pk.g, ciphertext.alpha, self.x, self.pk.p, self.pk.q, challenge_generator)
 
         return dec_factor, proof
 
@@ -313,8 +310,7 @@ class EGSecretKey:
         if not dec_factor:
             dec_factor = self.decryption_factor(ciphertext)
 
-        m = (Utils.inverse(dec_factor, self.pk.p)
-             * ciphertext.beta) % self.pk.p
+        m = (Utils.inverse(dec_factor, self.pk.p) * ciphertext.beta) % self.pk.p
 
         if decode_m:
             # get m back from the q-order subgroup
@@ -340,10 +336,8 @@ class EGSecretKey:
         and alpha^t = b * beta/m ^ c
         """
 
-        m = (Utils.inverse(pow(ciphertext.alpha, self.x, self.pk.p), self.pk.p)
-             * ciphertext.beta) % self.pk.p
-        beta_over_m = (
-            ciphertext.beta * Utils.inverse(m, self.pk.p)) % self.pk.p
+        m = (Utils.inverse(pow(ciphertext.alpha, self.x, self.pk.p), self.pk.p) * ciphertext.beta) % self.pk.p
+        beta_over_m = (ciphertext.beta * Utils.inverse(m, self.pk.p)) % self.pk.p
 
         # pick a random w
         w = Utils.random_mpz_lt(self.pk.q)
@@ -504,17 +498,14 @@ class EGCiphertext:
         proof.challenge = challenge
 
         # compute beta/plaintext, the completion of the DH tuple
-        beta_over_plaintext = (
-            self.beta * Utils.inverse(plaintext.m, self.pk.p)) % self.pk.p
+        beta_over_plaintext = (self.beta * Utils.inverse(plaintext.m, self.pk.p)) % self.pk.p
 
         # random response, does not even need to depend on the challenge
         proof.response = Utils.random_mpz_lt(self.pk.q)
 
         # now we compute A and B
-        proof.commitment['A'] = (Utils.inverse(
-            pow(self.alpha, proof.challenge, self.pk.p), self.pk.p) * pow(self.pk.g, proof.response, self.pk.p)) % self.pk.p
-        proof.commitment['B'] = (Utils.inverse(
-            pow(beta_over_plaintext, proof.challenge, self.pk.p), self.pk.p) * pow(self.pk.y, proof.response, self.pk.p)) % self.pk.p
+        proof.commitment['A'] = (Utils.inverse(pow(self.alpha, proof.challenge, self.pk.p), self.pk.p) * pow(self.pk.g, proof.response, self.pk.p)) % self.pk.p
+        proof.commitment['B'] = (Utils.inverse(pow(beta_over_plaintext, proof.challenge, self.pk.p), self.pk.p) * pow(self.pk.y, proof.response, self.pk.p)) % self.pk.p
 
         return proof
 
@@ -569,14 +560,11 @@ class EGCiphertext:
         """
 
         # check that g^response = A * alpha^challenge
-        first_check = (pow(self.pk.g, proof.response, self.pk.p) == (
-            (pow(self.alpha, proof.challenge, self.pk.p) * proof.commitment['A']) % self.pk.p))
+        first_check = (pow(self.pk.g, proof.response, self.pk.p) == ((pow(self.alpha, proof.challenge, self.pk.p) * proof.commitment['A']) % self.pk.p))
 
         # check that y^response = B * (beta/m)^challenge
-        beta_over_m = (
-            self.beta * Utils.inverse(plaintext.m, self.pk.p)) % self.pk.p
-        second_check = (pow(self.pk.y, proof.response, self.pk.p) == (
-            (pow(beta_over_m, proof.challenge, self.pk.p) * proof.commitment['B']) % self.pk.p))
+        beta_over_m = (self.beta * Utils.inverse(plaintext.m, self.pk.p)) % self.pk.p
+        second_check = (pow(self.pk.y, proof.response, self.pk.p) == ((pow(beta_over_m, proof.challenge, self.pk.p) * proof.commitment['B']) % self.pk.p))
 
         # print "1,2: %s %s " % (first_check, second_check)
         return (first_check and second_check)

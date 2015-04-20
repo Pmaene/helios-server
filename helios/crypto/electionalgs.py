@@ -224,8 +224,7 @@ class EncryptedAnswer(HeliosObject):
         ea = cls()
 
         ea.choices = [algs.EGCiphertext.from_dict(c, pk) for c in d['choices']]
-        ea.individual_proofs = [
-            algs.EGZKDisjunctiveProof.from_dict(p) for p in d['individual_proofs']]
+        ea.individual_proofs = [algs.EGZKDisjunctiveProof.from_dict(p) for p in d['individual_proofs']]
 
         if d['overall_proof']:
             ea.overall_proof = [algs.EGZKDisjunctiveProof.from_dict(d['overall_proof'])]
@@ -804,10 +803,8 @@ class Tally(HeliosObject):
 
             for a_num, a in enumerate(q):
                 # coalesce the decryption factors into one list
-                dec_factor_list = [df[q_num][a_num]
-                                   for df in decryption_factors]
-                raw_value = self.tally[q_num][a_num].decrypt(
-                    dec_factor_list, public_key)
+                dec_factor_list = [df[q_num][a_num] for df in decryption_factors]
+                raw_value = self.tally[q_num][a_num].decrypt(dec_factor_list, public_key)
 
                 q_result.append(dlog_table.lookup(raw_value))
 
