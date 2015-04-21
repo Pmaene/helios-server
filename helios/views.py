@@ -1050,10 +1050,7 @@ def password_voter_login(request, election):
         if election.private_p:
             login_url = reverse(password_voter_login, args=[election.uuid])
         else:
-            if len(settings.AUTH_ENABLED_AUTH_SYSTEMS) == 1 and settings.AUTH_ENABLED_AUTH_SYSTEMS[0] != 'password':
-                login_url = reverse(password_voter_login, args=[election.uuid])
-            else:
-                login_url = reverse(one_election_cast_confirm, args=[election.uuid])
+            login_url = reverse(one_election_cast_confirm, args=[election.uuid])
 
     password_login_form = forms.VoterPasswordForm(request.POST)
 
@@ -1138,10 +1135,8 @@ def one_election_cast_confirm(request, election):
 
         # status update this vote
         if voter and voter.user.can_update_status():
-            status_update_label = voter.user.update_status_template(
-            ) % "your smart ballot tracker"
-            status_update_message = "I voted in %s - my smart tracker is %s.. #heliosvoting" % (
-                get_election_url(election), cast_vote.vote_hash[:10])
+            status_update_label = voter.user.update_status_template() % "your smart ballot tracker"
+            status_update_message = "I voted in %s - my smart tracker is %s.. #heliosvoting" % (get_election_url(election), cast_vote.vote_hash[:10])
         else:
             status_update_label = None
             status_update_message = None
@@ -1166,6 +1161,10 @@ def one_election_cast_confirm(request, election):
 
         return_url = reverse(one_election_cast_confirm, args=[election.uuid])
         login_box = auth_views.login_box_raw(request, return_url=return_url, auth_systems=auth_systems, remove_unload=True)
+
+        if auth_systems and not voter:
+            if len(auth_systems) == 1 and auth_systems[0] != 'password':
+                return HttpResponseRedirect("%s%s?return_url=%s" % (settings.SECURE_URL_HOST, reverse(auth_views.start, args=[settings.AUTH_ENABLED_AUTH_SYSTEMS[0]]), return_url))
 
         return render_template(request, 'election_cast_confirm', {
             'login_box': login_box,
@@ -1205,7 +1204,6 @@ def one_election_cast_confirm(request, election):
             status_update_message = None
 
         # launch the verification task
-
         tasks.cast_vote_verify_and_store.delay(cast_vote_id=cast_vote.id, status_update_message=status_update_message)
 
         # remove the vote from the store
