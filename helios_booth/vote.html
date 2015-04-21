@@ -334,14 +334,14 @@
         });
 
         // do the warning only if the question allows more than one option, otherwise it's confusing
-        if (BOOTH.election.questions[question_num].max > 1)
-          $('#warning_box').show();
+        $('.warning_box').show();
       } else {
         // enable the other checkboxes
         $('.ballot_answer').each(function(i, checkbox) {
           checkbox.disabled = false;
         });
-        $('#warning_box').hide();
+
+        $('.warning_box').hide();
       }
     };
 
@@ -493,7 +493,7 @@
 
     BOOTH.request_ballot_encryption = function() {
       // simulating progress
-      BOOTH.encrypting_progress.animate(1, {duration: 15000});
+      BOOTH.encrypting_progress.animate(1, {duration: 5000});
 
       // encryption on server side
       $.post(BOOTH.election_url + '/encrypt-ballot', {'answers_json': JSON.stringify(BOOTH.ballot.answers)}, function(result) {

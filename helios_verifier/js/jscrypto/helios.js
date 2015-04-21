@@ -141,7 +141,7 @@ UTILS.open_window_with_content = function(content, mime_type) {
     if (!mime_type)
       mime_type = "text/plain";
 
-    if (BigInt.is_ie) {
+    if (navigator.appName == "Microsoft Internet Explorer") {
 	    w = window.open("");
 	    w.document.open(mime_type);
 	    w.document.write(content);
