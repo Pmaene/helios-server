@@ -1079,6 +1079,10 @@ def password_voter_login(request, election):
 def one_election_cast_confirm(request, election):
     user = get_user(request)
 
+    return_url = reverse(one_election_cast_confirm, args=[election.uuid])
+    if not user and len(settings.AUTH_ENABLED_AUTH_SYSTEMS) == 1 and settings.AUTH_ENABLED_AUTH_SYSTEMS[0] != 'password':
+        return HttpResponseRedirect("%s%s?return_url=%s" % (settings.SECURE_URL_HOST, reverse(auth_views.start, args=[settings.AUTH_ENABLED_AUTH_SYSTEMS[0]]), return_url))
+
     # if no encrypted vote, the user is reloading this page or otherwise
     # getting here in a bad way
     if not request.session.has_key('encrypted_vote'):
@@ -1159,12 +1163,7 @@ def one_election_cast_confirm(request, election):
             show_password = False
             password_login_form = None
 
-        return_url = reverse(one_election_cast_confirm, args=[election.uuid])
         login_box = auth_views.login_box_raw(request, return_url=return_url, auth_systems=auth_systems, remove_unload=True)
-
-        if auth_systems and not voter:
-            if len(auth_systems) == 1 and auth_systems[0] != 'password':
-                return HttpResponseRedirect("%s%s?return_url=%s" % (settings.SECURE_URL_HOST, reverse(auth_views.start, args=[settings.AUTH_ENABLED_AUTH_SYSTEMS[0]]), return_url))
 
         return render_template(request, 'election_cast_confirm', {
             'login_box': login_box,
