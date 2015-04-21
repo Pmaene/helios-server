@@ -30,10 +30,6 @@ SHOW_LOGIN_OPTIONS = (get_from_env('SHOW_LOGIN_OPTIONS', '1') == '1')
 # to display who created the election.
 SHOW_USER_INFO = (get_from_env('SHOW_USER_INFO', '1') == '1')
 
-# We want the possibility to show the booth of private elections,
-# even when users aren't logged in yet.
-SHOW_PRIVATE_BOOTH = (get_from_env('SHOW_PRIVATE_BOOTH', '1') == '1')
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

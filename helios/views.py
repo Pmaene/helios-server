@@ -169,7 +169,7 @@ def election_shortcut(request, election_short_name):
         raise Http404
 
 
-@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
+@election_view()
 def _election_vote_shortcut(request, election):
     """
     a hidden view behind the shortcut that performs the actual perm check
@@ -302,7 +302,7 @@ def one_election_schedule(request, election):
     return HttpResponse("foo")
 
 
-@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
+@election_view()
 @return_json
 def one_election(request, election):
     if not election:
@@ -310,7 +310,7 @@ def one_election(request, election):
     return election.toJSONDict(complete=True)
 
 
-@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
+@election_view()
 @return_json
 def one_election_meta(request, election):
     if not election:
@@ -959,7 +959,7 @@ def get_randomness(request):
     }
 
 
-@election_view(frozen=True, allow_logins=settings.SHOW_PRIVATE_BOOTH)
+@election_view(frozen=True)
 @return_json
 def encrypt_ballot(request, election):
     """
@@ -986,7 +986,7 @@ def post_audited_ballot(request, election):
 
 
 # we don't require frozen election to allow for ballot preview
-@election_view(allow_logins=settings.SHOW_PRIVATE_BOOTH)
+@election_view()
 def one_election_cast(request, election):
     """
     on a GET, this is a cancellation, on a POST it's a cast
@@ -1050,7 +1050,10 @@ def password_voter_login(request, election):
         if election.private_p:
             login_url = reverse(password_voter_login, args=[election.uuid])
         else:
-            login_url = reverse(one_election_cast_confirm, args=[election.uuid])
+            if len(settings.AUTH_ENABLED_AUTH_SYSTEMS) == 1 and settings.AUTH_ENABLED_AUTH_SYSTEMS[0] != 'password':
+                login_url = reverse(password_voter_login, args=[election.uuid])
+            else:
+                login_url = reverse(one_election_cast_confirm, args=[election.uuid])
 
     password_login_form = forms.VoterPasswordForm(request.POST)
 
