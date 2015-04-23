@@ -110,7 +110,7 @@ class Election(HeliosModel):
     frozen_at = models.DateTimeField( auto_now_add=False, default=None, null=True)
     archived_at = models.DateTimeField( auto_now_add=False, default=None, null=True)
 
-    use_threshold = models.BooleanField(default=True)
+    use_threshold = models.BooleanField(default=False)
     frozen_trustee_list = models.BooleanField(default=False)
     encrypted_shares_uploaded = models.BooleanField(default=False)
 
