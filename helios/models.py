@@ -13,7 +13,6 @@ from django.core.mail import send_mail
 from django.utils.translation import ugettext as _
 
 import datetime
-import logging
 import uuid
 import random
 import io
@@ -479,7 +478,7 @@ class Election(HeliosModel):
             decryption_factors = []
             scheme = self.get_scheme()
             trustees_active = Trustee.objects.filter(election=self).exclude(decryption_factors=None)
-            x_values = [t.id for t in trustees_active]
+            x_values = [t.id if t.original_id is None else t.original_id for t in trustees_active]
             if len(trustees_active) >= scheme.k:
                 for i in range(scheme.k):
                     numerator = 1
@@ -570,7 +569,7 @@ class Election(HeliosModel):
         election is frozen when the voter registration, questions, and trustees are finalized
         """
         if len(self.issues_before_freeze) > 0:
-            raise Exception("cannot freeze an election that has issues")
+            raise Exception("Cannot freeze an election that has issues")
 
         self.frozen_at = datetime.datetime.utcnow()
 
@@ -584,18 +583,20 @@ class Election(HeliosModel):
 
         combined_pk = None
         if self.use_threshold:
-            k = 0
-
             scheme = self.get_scheme()
-            if scheme:
-                k = scheme.k
+            if not scheme:
+                raise Exception("Threshold scheme was not yet defined")
 
-            for t in trustees[0:k]:
-                xi = t.id
+            k = scheme.k
+
+            x_values = [t.id if t.original_id is None else t.original_id for t in trustees]
+            for i in range(k):
+                t = trustees[i]
+                xi = x_values[i]
                 numerator = 1
                 denominator = 1
                 for j in range(k):
-                    xj = trustees[j].id
+                    xj = x_values[j]
                     if xi != xj:
                         numerator = (numerator * -xj) % q
                         denominator = (denominator * (xi - xj)) % q
@@ -1415,6 +1416,10 @@ class Trustee(HeliosModel):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     secret = models.CharField(max_length=100)
+
+    # when duplicating trustees over multiple elections,
+    # we need the original ID for the Lagrange interpolation
+    original_id = models.IntegerField(null=True)
 
     # public key
     public_key = LDObjectField(type_hint='legacy/EGPublicKey', null=True)

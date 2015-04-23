@@ -23,6 +23,7 @@ for trustee in trustees:
     destination_trustee = copy.deepcopy(trustee)
 
     destination_trustee.id = None
+    destination_trustee.original_id = trustee.id
     destination_trustee.uuid = uuid.uuid1()
     destination_trustee.election = destination_election
     destination_trustee.save()
