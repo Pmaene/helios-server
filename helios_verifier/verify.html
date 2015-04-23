@@ -115,7 +115,7 @@
         election = HELIOS.Election.fromJSONString(raw_json);
 
         $('#election_name').html(election.name);
-        $('#election_fingerprint').html(election.get_hash());
+        $('#election_fingerprint').html(election.hash);
         $('#election_info').show();
         var tally = [];
         var init_tally = true;
