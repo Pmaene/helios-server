@@ -30,6 +30,9 @@ SHOW_LOGIN_OPTIONS = (get_from_env('SHOW_LOGIN_OPTIONS', '1') == '1')
 # to display who created the election.
 SHOW_USER_INFO = (get_from_env('SHOW_USER_INFO', '1') == '1')
 
+# Whether or not to show the participation info on the election view
+SHOW_PARTICIPATION_INFO = (get_from_env('SHOW_PARTICIPATION_INFO', '0') == '1')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
