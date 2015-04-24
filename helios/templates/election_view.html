@@ -75,17 +75,17 @@
           </div>
         {% endif %}
 
-        {% if settings.SHOW_PARTICIPATION_INFO %}
-          <h3>{% trans "Participation" %}</h3>
-
-          <p>
-            {% blocktrans with num_voters_cast=num_voters_cast num_voters=num_voters participation_percentage=participation_percentage %}
-              {{num_voters_cast}} out of {{num_voters}} voters cast their vote, or {{participation_percentage}}%.
-            {% endblocktrans %}
-          </p>
-        {% endif %}
-
         {% if election.result_released_at or election.result and admin_p %}
+          {% if settings.SHOW_PARTICIPATION_INFO %}
+            <h3>{% trans "Participation" %}</h3>
+
+            <p>
+              {% blocktrans with num_voters_cast=num_voters_cast num_voters=num_voters participation_percentage=participation_percentage %}
+                {{num_voters_cast}} out of {{num_voters}} voters cast their vote, or {{participation_percentage}}%.
+              {% endblocktrans %}
+            </p>
+          {% endif %}
+
           <h3>{% trans "Tally" %}</h3>
 
           {% for question in election.pretty_result %}
