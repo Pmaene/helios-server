@@ -6,12 +6,9 @@ body {
 }
 
 #wrapper {
-  position: absolute;
-  padding: 0px;
   background: white;
-  top: 30px;
-  left: 50%;
-  margin: 0 0 30px -500px;
+  padding: 0px;
+  margin: 30px auto 0 auto;
   width: 1000px;
 }
 
