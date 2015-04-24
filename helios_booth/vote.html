@@ -337,6 +337,9 @@
         $('#answer_label_' + question_num + "_" + answer_num).removeClass('selected');
       }
 
+      if (BOOTH.ballot.answers[question_num].length == BOOTH.election.questions[question_num].min)
+        $('.nbanswers_warning_box').hide();
+
       if (BOOTH.election.questions[question_num].max != null && BOOTH.ballot.answers[question_num].length >= BOOTH.election.questions[question_num].max) {
         // disable the other checkboxes
         $('.ballot_answer').each(function(i, checkbox) {
