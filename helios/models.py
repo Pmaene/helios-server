@@ -477,7 +477,7 @@ class Election(HeliosModel):
         if self.use_threshold:
             decryption_factors = []
             scheme = self.get_scheme()
-            trustees_active = Trustee.objects.filter(election=self).exclude(decryption_factors=None)
+            trustees_active = trustees.exclude(decryption_factors=None)
             x_values = [t.id if t.original_id is None else t.original_id for t in trustees_active]
             if len(trustees_active) >= scheme.k:
                 for i in range(scheme.k):
@@ -490,11 +490,11 @@ class Election(HeliosModel):
                             numerator = (numerator * -xj) % q
                             denominator = (denominator * (xi - xj)) % q
 
-                    lambda_now = (numerator * algs.Utils.inverse(denominator, q)) % q
+                    lambda_t = (numerator * algs.Utils.inverse(denominator, q)) % q
 
                     trustee = trustees_active[i]
                     nof_questions = len(trustee.decryption_factors)
-                    decryption_factors.append([[pow(trustee.decryption_factors[question][answer], lambda_now, p) for answer in range(len(trustee.decryption_factors[question]))] for question in range(nof_questions)])
+                    decryption_factors.append([[pow(trustee.decryption_factors[question][answer], lambda_t, p) for answer in range(len(trustee.decryption_factors[question]))] for question in range(nof_questions)])
 
         self.result = self.encrypted_tally.decrypt_from_factors(decryption_factors, self.public_key)
         self.append_log(ElectionLog.DECRYPTIONS_COMBINED)
@@ -591,7 +591,6 @@ class Election(HeliosModel):
 
             x_values = [t.id if t.original_id is None else t.original_id for t in trustees]
             for i in range(k):
-                t = trustees[i]
                 xi = x_values[i]
                 numerator = 1
                 denominator = 1
@@ -602,6 +601,8 @@ class Election(HeliosModel):
                         denominator = (denominator * (xi - xj)) % q
 
                 lambda_t = (numerator * algs.Utils.inverse(denominator, q)) % q
+
+                t = trustees[i]
 
                 if combined_pk == None:
                     combined_pk = t.public_key
