@@ -36,8 +36,12 @@
     </div>
   {#/for}
 
-  <div class="warning_box" style="color: green; text-align: center; font-size: 0.8em; padding-top: 10px; padding-bottom: 10px; display: none;" data-localize="question_warning">
+  <div class="deselection_warning_box" style="color: orange; text-align: center; font-size: 0.8em; padding-top: 10px; padding-bottom: 10px; display: none;" data-localize="question_deselection_warning">
     To change your selection, please de-select a current answer first.
+  </div>
+
+  <div class="nbanswers_warning_box" style="color: orange; text-align: center; font-size: 0.8em; padding-top: 10px; padding-bottom: 10px; display: none;" data-localize="question_nbanswers_warning">
+    You selected less than the required number of answers.
   </div>
 
   {#if $T.show_reviewall}
