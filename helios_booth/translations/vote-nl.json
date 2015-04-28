@@ -18,7 +18,8 @@
   "election_start" : "Start",
 
   "question_of" : "van de",
-  "question_choose_pre" : "Je kan",
+  "question_choose_can_pre" : "Je kan",
+  "question_choose_must_pre" : "Je moet",
   "question_to" : "tot",
   "question_choose_post" : "kiezen",
   "question_answers" : "antwoorden",

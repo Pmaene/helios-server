@@ -18,7 +18,8 @@
   "election_start" : "Start",
 
   "question_of" : "of",
-  "question_choose_pre" : "You can choose",
+  "question_choose_can_pre" : "You can choose",
+  "question_choose_must_pre" : "You must choose",
   "question_to" : "to",
   "question_choose_post" : "",
   "question_answers" : "answers",

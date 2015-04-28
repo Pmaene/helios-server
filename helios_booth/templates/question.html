@@ -7,12 +7,20 @@
     <span style="font-size: 0.6em;">
       #{$T.question_num + 1} <span data-localize="question_of">of</span> {$T.last_question_num + 1}
       &mdash;
-      <span data-localize="question_choose_pre">You can choose</span>
+      {#if $T.question.min == 0}
+        <span data-localize="question_choose_can_pre">You can choose</span>
+      {#else}
+        <span data-localize="question_choose_must_pre">You must choose</span>
+      {#/if}
       {#if $T.question.min && $T.question.min > 0}
         {#if $T.question.max}
-          {$T.question.min} <span data-localize="question_to">to</span> {$T.question.max} <span data-localize="question_answers">answers</span>
+          {#if $T.question.min != $T.question.max}
+            {$T.question.min} <span data-localize="question_to">to</span> {$T.question.max} <span data-localize="question_answers">answers</span>
+          {#else}
+            {$T.question.min}
+          {#/if}
         {#else}
-        <span data-localize="question_at_least">at least</span> {$T.question.min} <span data-localize="question_answer">answer</span>
+          <span data-localize="question_at_least">at least</span> {$T.question.min} <span data-localize="question_answer">answer</span>
         {#/if}
       {#else}
         {#if $T.question.max}
