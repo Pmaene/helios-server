@@ -17,7 +17,7 @@
           {#if $T.question.min != $T.question.max}
             {$T.question.min} <span data-localize="question_to">to</span> {$T.question.max} <span data-localize="question_answers">answers</span>
           {#else}
-            {$T.question.min}
+            {$T.question.min} {#if $T.question.max == 1}<span data-localize="question_answer">answer</span>{#else}<span data-localize="question_answers">answers</span>{#/if}
           {#/if}
         {#else}
           <span data-localize="question_at_least">at least</span> {$T.question.min} <span data-localize="question_answer">answer</span>
