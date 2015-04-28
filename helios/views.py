@@ -85,7 +85,8 @@ def get_election_govote_url(election):
 
 
 def get_castvote_url(cast_vote):
-    return settings.URL_HOST + re.match(r'(/[^/]*)(/.*$)', reverse(castvote_shortcut, args=[cast_vote.vote_tinyhash])).groups()[1]
+    translation.activate("en")
+    return settings.URL_HOST + reverse(castvote_shortcut, args=[cast_vote.vote_tinyhash])
 
 
 ##
@@ -338,7 +339,7 @@ def one_election_view(request, election):
     election_url = get_election_url(election)
     election_badge_url = get_election_badge_url(election)
 
-    vote_url = "%s/booth/vote.html?%s" % (settings.SECURE_URL_HOST, urllib.urlencode({'election_url': reverse(one_election, args=[election.uuid])}))
+    vote_url = "%s/booth/vote.html?%s#%s" % (settings.SECURE_URL_HOST, urllib.urlencode({'election_url': reverse(one_election, args=[election.uuid])}), translation.get_language())
 
     test_cookie_url = "%s?%s" % (reverse(test_cookie), urllib.urlencode({'continue_url': vote_url}))
 

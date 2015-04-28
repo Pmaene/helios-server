@@ -10,6 +10,7 @@ from celery.decorators import task
 from models import *
 from view_utils import render_template_raw
 from django.core.urlresolvers import reverse
+from django.utils.translation import activate
 import signals
 import copy
 from celery.utils.log import get_task_logger
@@ -54,7 +55,7 @@ def voters_email(election_id, subject_template, body_template, extra_vars={}, vo
         voters = voters.exclude(**voter_constraints_exclude)
 
     for voter in voters:
-        single_voter_email.delay(voter.uuid, subject_template, body_template, extra_vars)            
+        single_voter_email.delay(voter.uuid, subject_template, body_template, extra_vars)
 
 
 @task()
@@ -109,6 +110,7 @@ Helios
 
         for trustee in trustees:
             if not trustee.helios_trustee:
+                activate("en")
                 url = settings.SECURE_URL_HOST + reverse(helios.views.trustee_login, args=[election.short_name, trustee.email, trustee.secret])
 
                 # send a note to trustee
