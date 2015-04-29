@@ -17,6 +17,26 @@ def vote_cast_send_message(user, voter, election, cast_vote, **kwargs):
     subject = "%s - Cast Vote" % election.name
 
     body = """
+[An English-language version has been included below.]
+
+Je stem in %s werd bewaard.
+
+Je kan je biljet terugvinden op de volgende pagina:
+
+    %s
+""" % (election.name, helios.views.get_castvote_url(cast_vote))
+
+    if election.use_voter_aliases:
+        body += """
+Deze verkiezing gebruikt aliassen voor elke kiezer om je privacy te beschermen.
+Je alias is: %s
+
+
+
+
+""" % voter.alias
+
+    body += """
 You have successfully cast a vote in %s.
 
 Your ballot is archived at:
@@ -32,8 +52,8 @@ Your voter alias is: %s
 
     body += """
 --
-Helios
-"""
+%s
+""" % settings.SITE_TITLE
 
     # send it via the notification system associated with the auth system
     user.send_message(subject, body)
