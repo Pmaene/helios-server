@@ -129,8 +129,7 @@ class EncryptedAnswer(HeliosObject):
     An encrypted answer to a single election question
     """
 
-    FIELDS = ['choices', 'individual_proofs',
-              'overall_proof', 'randomness', 'answer']
+    FIELDS = ['choices', 'individual_proofs', 'overall_proof', 'randomness', 'answer']
 
     # FIXME: remove this constructor and use only named-var constructor from
     # HeliosObject
@@ -281,34 +280,28 @@ class EncryptedAnswer(HeliosObject):
 
             # randomness and encryption
             randomness[answer_num] = algs.Utils.random_mpz_lt(pk.q)
-            choices[answer_num] = pk.encrypt_with_r(
-                plaintexts[plaintext_index], randomness[answer_num])
+            choices[answer_num] = pk.encrypt_with_r(plaintexts[plaintext_index], randomness[answer_num])
 
             # generate proof
-            individual_proofs[answer_num] = choices[answer_num].generate_disjunctive_encryption_proof(plaintexts, plaintext_index,
-                                                                                                      randomness[answer_num], algs.EG_disjunctive_challenge_generator)
+            individual_proofs[answer_num] = choices[answer_num].generate_disjunctive_encryption_proof(plaintexts, plaintext_index, randomness[answer_num], algs.EG_disjunctive_challenge_generator)
 
             # sum things up homomorphically if needed
             if max_answers != None:
                 homomorphic_sum = choices[answer_num] * homomorphic_sum
-                randomness_sum = (
-                    randomness_sum + randomness[answer_num]) % pk.q
+                randomness_sum = (randomness_sum + randomness[answer_num]) % pk.q
 
         # prove that the sum is 0 or 1 (can be "blank vote" for this answer)
         # num_selected_answers is 0 or 1, which is the index into the plaintext
         # that is actually encoded
 
         if num_selected_answers < min_answers:
-            raise Exception(
-                "Need to select at least %s answer(s)" % min_answers)
+            raise Exception("Need to select at least %s answer(s)" % min_answers)
 
         if max_answers != None:
-            sum_plaintexts = cls.generate_plaintexts(
-                pk, min=min_answers, max=max_answers)
+            sum_plaintexts = cls.generate_plaintexts(pk, min=min_answers, max=max_answers)
 
             # need to subtract the min from the offset
-            overall_proof = homomorphic_sum.generate_disjunctive_encryption_proof(
-                sum_plaintexts, num_selected_answers - min_answers, randomness_sum, algs.EG_disjunctive_challenge_generator)
+            overall_proof = homomorphic_sum.generate_disjunctive_encryption_proof(sum_plaintexts, num_selected_answers - min_answers, randomness_sum, algs.EG_disjunctive_challenge_generator)
         else:
             # approval voting
             overall_proof = None
@@ -402,201 +395,6 @@ def one_question_winner(question, result, num_cast_votes):
 
     if question['result_type'] == 'relative':
         return [counts[0][0]]
-
-
-class Election(HeliosObject):
-
-    FIELDS = ['uuid', 'questions', 'name', 'short_name', 'description', 'voters_hash', 'openreg',
-              'frozen_at', 'public_key', 'private_key', 'cast_url', 'result', 'result_proof', 'use_voter_aliases', 'voting_starts_at', 'voting_ends_at', 'election_type']
-
-    JSON_FIELDS = ['uuid', 'questions', 'name', 'short_name', 'description', 'voters_hash', 'openreg',
-                   'frozen_at', 'public_key', 'cast_url', 'use_voter_aliases', 'voting_starts_at', 'election_type', 'voting_ends_at']
-
-    # need to add in v3.1: use_advanced_audit_features, election_type, and
-    # probably more
-
-    def init_tally(self):
-        return Tally(election=self)
-
-    def _process_value_in(self, field_name, field_value):
-        if field_name == 'frozen_at' or field_name == 'voting_starts_at' or field_name == 'voting_ends_at':
-            if type(field_value) == str or type(field_value) == unicode:
-                return datetime.datetime.strptime(field_value, '%Y-%m-%d %H:%M:%S')
-
-        if field_name == 'elecion_type':
-            return field_value
-
-        if field_name == 'public_key':
-            return algs.EGPublicKey.fromJSONDict(field_value)
-
-        if field_name == 'private_key':
-            return algs.EGSecretKey.fromJSONDict(field_value)
-
-    def _process_value_out(self, field_name, field_value):
-        # the date
-        if field_name == 'frozen_at' or field_name == 'voting_starts_at' or field_name == 'voting_ends_at':
-            return str(field_value)
-
-        if field_name == 'public_key' or field_name == 'private_key':
-            return field_value.toJSONDict()
-
-        if field_name == 'election_type':
-            return str(field_value)
-
-    @property
-    def registration_status_pretty(self):
-        if self.openreg:
-            return "Open"
-        else:
-            return "Closed"
-
-    @property
-    def winners(self):
-        """
-        Depending on the type of each question, determine the winners
-        returns an array of winners for each question, aka an array of arrays.
-        assumes that if there is a max to the question, that's how many winners there are.
-        """
-        return [one_question_winner(self.questions[i], self.result[i], self.num_cast_votes) for i in range(len(self.questions))]
-
-    @property
-    def pretty_result(self):
-        if not self.result:
-            return None
-
-        # get the winners
-        winners = self.winners
-
-        raw_result = self.result
-        prettified_result = []
-
-        # loop through questions
-        for i in range(len(self.questions)):
-            q = self.questions[i]
-            pretty_question = []
-
-            # go through answers
-            for j in range(len(q['answers'])):
-                a = q['answers'][j]
-                count = raw_result[i][j]
-                pretty_question.append(
-                    {'answer': a, 'count': count, 'winner': (j in winners[i])})
-
-            prettified_result.append(
-                {'question': q['short_name'], 'answers': pretty_question})
-
-        return prettified_result
-
-
-class Voter(HeliosObject):
-
-    """
-    A voter in an election
-    """
-    FIELDS = ['election_uuid', 'uuid',
-              'voter_type', 'voter_id', 'name', 'alias']
-    JSON_FIELDS = [
-        'election_uuid', 'uuid', 'voter_type', 'voter_id_hash', 'name']
-
-    # alternative, for when the voter is aliased
-    ALIASED_VOTER_JSON_FIELDS = ['election_uuid', 'uuid', 'alias']
-
-    def toJSONDict(self):
-        fields = None
-        if self.alias != None:
-            return super(Voter, self).toJSONDict(self.ALIASED_VOTER_JSON_FIELDS)
-        else:
-            return super(Voter, self).toJSONDict()
-
-    @property
-    def voter_id_hash(self):
-        if self.voter_login_id:
-            # for backwards compatibility with v3.0, and since it doesn't matter
-            # too much if we hash the email or the unique login ID here.
-            return utils.hash_b64(self.voter_login_id)
-        else:
-            return utils.hash_b64(self.voter_id)
-
-
-class Trustee(HeliosObject):
-
-    """
-    a trustee
-    """
-    FIELDS = ['uuid', 'public_key', 'public_key_hash', 'pok', 'decryption_factors',
-              'decryption_proofs', 'email', 'committed_points', 'received_points', 'prepared_mpc']
-
-    def _process_value_in(self, field_name, field_value):
-        if field_name == 'public_key':
-            return algs.EGPublicKey.fromJSONDict(field_value)
-
-        if field_name == 'pok':
-            return algs.DLogProof.fromJSONDict(field_value)
-
-    def _process_value_out(self, field_name, field_value):
-        if field_name == 'public_key' or field_name == 'pok':
-            return field_value.toJSONDict()
-
-
-class CastVote(HeliosObject):
-
-    """
-    A cast vote, which includes an encrypted vote and some cast metadata
-    """
-    FIELDS = ['vote', 'cast_at', 'voter_uuid', 'voter_hash', 'vote_hash']
-
-    def __init__(self, *args, **kwargs):
-        super(CastVote, self).__init__(*args, **kwargs)
-        self.election = None
-
-    @classmethod
-    def fromJSONDict(cls, d, election=None):
-        o = cls()
-        o.election = election
-        o.set_from_args(**d)
-        return o
-
-    def toJSONDict(self, include_vote=True):
-        result = super(CastVote, self).toJSONDict()
-        if not include_vote:
-            del result['vote']
-        return result
-
-    @classmethod
-    def fromOtherObject(cls, o, election):
-        obj = cls()
-        obj.election = election
-        obj.set_from_other_object(o)
-        return obj
-
-    def _process_value_in(self, field_name, field_value):
-        if field_name == 'cast_at':
-            if type(field_value) == str:
-                return datetime.datetime.strptime(field_value, '%Y-%m-%d %H:%M:%S')
-
-        if field_name == 'vote':
-            return EncryptedVote.fromJSONDict(field_value, self.election.public_key)
-
-    def _process_value_out(self, field_name, field_value):
-        # the date
-        if field_name == 'cast_at':
-            return str(field_value)
-
-        if field_name == 'vote':
-            return field_value.toJSONDict()
-
-    def issues(self, election):
-        """
-        Look for consistency problems
-        """
-        issues = []
-
-        # check the election
-        if self.vote.election_uuid != election.uuid:
-            issues.append(
-                "the vote's election UUID does not match the election for which this vote is being cast")
-
-        return issues
 
 
 class DLogTable(object):
@@ -821,40 +619,6 @@ class Tally(HeliosObject):
             return [[a.toJSONDict() for a in q] for q in field_value]
 
 
-class ThresholdScheme(HeliosObject):
-    FIELDS = ['election', 'n', 'k', 'ground_1', 'ground_2']
-
-    def __init__(self, election, n, k, ground_1, ground_2):
-        self.ground_1 = ground_1
-        self.ground_2 = ground_2
-        # self.election=election
-        #self.trustees = self.election.get_trustees()
-        #self.q = self.trustees[0].public_key.q
-        # self.n = len(self.trustees)  #len(self.trustees)
-        # self.k = self.n   #nog aan te passen
-        self.n = n
-        self.k = k
-        self.election = election
-
-    @classmethod
-    def fromJSONDict(cls, d):
-        if not d:
-            return None
-
-        scheme = cls()
-        if d.has_key('election'):
-            scheme.election = Election._process_value_in('election', d)
-        else:
-            scheme.election = None
-        scheme.n = d['n']
-        scheme.q = d['q']
-        scheme.k = d['k']
-        scheme.ground_1 = d['ground_1']
-        scheme.ground_2 = d['ground_2']
-
-        return scheme
-
-
 class Polynomial(HeliosObject):
     # c0 is the free term and is equal to coeff[0]
     #grade is k-1
@@ -887,7 +651,6 @@ class Polynomial(HeliosObject):
         points = []
         for i in trustees:
             point = Point(i.id, self.evaluate(i.id))
-            #point_JSON = point.toJSONdict()
             points.append(point)
         return points
 
@@ -977,9 +740,6 @@ class CommittedPoint(HeliosObject):
         return value
 
     def verify_commitments(self):
-        #election = self.election
-        # if self.receiver_trustee.point_number != None:
-            #point_number = self.receiver_trustee.point_number
         q = self.E.q
         point_number = self.point.x_value
         result = 1
@@ -991,12 +751,10 @@ class CommittedPoint(HeliosObject):
                 return False
             else:
                 return True
-        # else:
-     #   return False
 
 
 class Feedback():
-    Fields = ['trustee_id', 'feedback']
+    FIELDS = ['trustee_id', 'feedback']
 
     def __init__(self, trustee_id, feedback):
         self.trustee_id = trustee_id
@@ -1005,12 +763,5 @@ class Feedback():
     def set_feedback(self, feedback):
         self.feedback = feedback
 
-    #@property
-    # def datatype(self):
-        # return 'legacy/Feedback'
     def _process_value_in(self, field_name, field_value):
         return field_value
-
-    # def _process_value_out(self, field_name, field_value):
-        # if field_name == '':
-        # return [[a.toJSONDict() for a in q] for q in field_value]

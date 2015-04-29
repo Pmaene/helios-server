@@ -16,8 +16,7 @@ def vote_cast_send_message(user, voter, election, cast_vote, **kwargs):
     # Prepare the message
     subject = "%s - Cast Vote" % election.name
 
-    body = """
-[An English-language version has been included below.]
+    body = """[An English-language version has been included below.]
 
 Je stem in %s werd bewaard.
 
@@ -30,7 +29,6 @@ Je kan je biljet terugvinden op de volgende pagina:
         body += """
 Deze verkiezing gebruikt aliassen voor elke kiezer om je privacy te beschermen.
 Je alias is: %s
-
 
 
 

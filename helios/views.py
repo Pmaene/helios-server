@@ -308,7 +308,7 @@ def one_election_schedule(request, election):
 def one_election(request, election):
     if not election:
         raise Http404
-    return election.toJSONDict(complete=True)
+    return election.toJSONDict()
 
 
 @election_view()
@@ -449,7 +449,7 @@ def socialbuttons(request):
 @return_json
 def trustees_list(request, election):
     trustees = Trustee.get_by_election(election)
-    return [t.toJSONDict(complete=True) for t in trustees]
+    return [t.toJSONDict() for t in trustees]
 
 
 @election_view()

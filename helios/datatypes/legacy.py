@@ -3,7 +3,7 @@ Legacy datatypes for Helios (v3.0)
 """
 
 from helios.datatypes import LDObject, arrayOf, DictObject, ListObject
-from helios.crypto import elgamal as crypto_elgamal
+from helios.crypto import elgamal as elgamal
 from helios.workflows import homomorphic
 from helios import models
 
@@ -18,6 +18,7 @@ class LegacyObject(LDObject):
 
 class Election(LegacyObject):
     WRAPPED_OBJ_CLASS = models.Election
+
     FIELDS = [
         'uuid',
         'questions',
@@ -70,10 +71,6 @@ class EncryptedAnswerWithRandomness(LegacyObject):
 
 
 class EncryptedVote(LegacyObject):
-
-    """
-    An encrypted ballot
-    """
     WRAPPED_OBJ_CLASS = homomorphic.EncryptedVote
     FIELDS = ['answers', 'election_hash', 'election_uuid']
     STRUCTURED_FIELDS = {
@@ -85,10 +82,6 @@ class EncryptedVote(LegacyObject):
 
 
 class EncryptedVoteWithRandomness(LegacyObject):
-
-    """
-    An encrypted ballot with randomness for answers
-    """
     WRAPPED_OBJ_CLASS = homomorphic.EncryptedVote
     FIELDS = ['answers', 'election_hash', 'election_uuid']
     STRUCTURED_FIELDS = {
@@ -131,12 +124,15 @@ class CastVote(LegacyObject):
 class Trustee(LegacyObject):
     FIELDS = [
         'uuid',
+        'id',
+        'original_id',
+        'name',
+        'email',
         'public_key',
         'public_key_hash',
         'pok',
         'decryption_factors',
-        'decryption_proofs',
-        'email'
+        'decryption_proofs'
     ]
 
     STRUCTURED_FIELDS = {
@@ -148,7 +144,7 @@ class Trustee(LegacyObject):
 
 
 class EGParams(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.Cryptosystem
+    WRAPPED_OBJ_CLASS = elgamal.Cryptosystem
     FIELDS = ['p', 'q', 'g']
     STRUCTURED_FIELDS = {
         'p': 'core/BigInteger',
@@ -158,7 +154,7 @@ class EGParams(LegacyObject):
 
 
 class EGPublicKey(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.PublicKey
+    WRAPPED_OBJ_CLASS = elgamal.PublicKey
     FIELDS = ['y', 'p', 'g', 'q']
     STRUCTURED_FIELDS = {
         'y': 'core/BigInteger',
@@ -169,7 +165,7 @@ class EGPublicKey(LegacyObject):
 
 
 class EGSecretKey(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.SecretKey
+    WRAPPED_OBJ_CLASS = elgamal.SecretKey
     FIELDS = ['x', 'public_key']
     STRUCTURED_FIELDS = {
         'x': 'core/BigInteger',
@@ -178,7 +174,7 @@ class EGSecretKey(LegacyObject):
 
 
 class EGCiphertext(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.Ciphertext
+    WRAPPED_OBJ_CLASS = elgamal.Ciphertext
     FIELDS = ['alpha', 'beta']
     STRUCTURED_FIELDS = {
         'alpha': 'core/BigInteger',
@@ -195,7 +191,7 @@ class EGZKProofCommitment(DictObject, LegacyObject):
 
 
 class EGZKProof(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.ZKProof
+    WRAPPED_OBJ_CLASS = elgamal.ZKProof
     FIELDS = ['commitment', 'challenge', 'response']
     STRUCTURED_FIELDS = {
         'commitment': 'legacy/EGZKProofCommitment',
@@ -205,7 +201,7 @@ class EGZKProof(LegacyObject):
 
 
 class EGZKDisjunctiveProof(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.ZKDisjunctiveProof
+    WRAPPED_OBJ_CLASS = elgamal.ZKDisjunctiveProof
     FIELDS = ['proofs']
     STRUCTURED_FIELDS = {
         'proofs': arrayOf('legacy/EGZKProof')
@@ -221,7 +217,7 @@ class EGZKDisjunctiveProof(LegacyObject):
 
 
 class DLogProof(LegacyObject):
-    WRAPPED_OBJ_CLASS = crypto_elgamal.DLogProof
+    WRAPPED_OBJ_CLASS = elgamal.DLogProof
     FIELDS = ['commitment', 'challenge', 'response']
     STRUCTURED_FIELDS = {
         'commitment': 'core/BigInteger',
@@ -263,6 +259,7 @@ class Eligibility(ListObject, LegacyObject):
 
 
 class ThresholdScheme(LegacyObject):
+    WRAPPED_OBJ_CLASS = models.ThresholdScheme
     FIELDS = ['election_id', 'n', 'k', 'ground_1', 'ground_2']
     STRUCTURED_FIELDS = {
         'ground_1': 'core/BigInteger',

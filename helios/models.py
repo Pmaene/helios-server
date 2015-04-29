@@ -162,12 +162,18 @@ class Election(HeliosModel):
     # metadata for the election
     @property
     def metadata(self):
-        return {
+        metadata = {
             'help_email': self.help_email or 'help@heliosvoting.org',
             'private_p': self.private_p,
             'use_advanced_audit_features': self.use_advanced_audit_features,
-            'randomize_answer_order': self.randomize_answer_order
+            'randomize_answer_order': self.randomize_answer_order,
+            'use_threshold': self.use_threshold
         }
+
+        if (self.use_threshold):
+            metadata['scheme'] = self.get_scheme().toJSONDict()
+
+        return metadata
 
     @property
     def pretty_type(self):
@@ -905,8 +911,7 @@ class ElectionLog(models.Model):
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
         # csv.py doesn't do Unicode; encode temporarily as UTF-8:
-    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
-                            dialect=dialect, **kwargs)
+    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
     for row in csv_reader:
         # decode UTF-8 back to Unicode, cell by cell:
         try:
@@ -1492,22 +1497,6 @@ class Trustee(HeliosModel):
         verify that the decryption proofs match the tally for the election
         """
         return self.election.encrypted_tally.verify_decryption_proofs(self.decryption_factors, self.decryption_proofs, self.public_key, algs.EG_fiatshamir_challenge_generator)
-
-    def prepare_mpc(self, scheme):
-        trustees = self.election.get_trustees()
-        n = len(trustees)
-        q = self.public_key.q
-        s = self.secret_key.x
-        scheme.share_verifiably(self, s)
-
-        self.prepared_mpc = True
-        # self.save()
-
-    def check_if_prepared_mpc(self):
-        if self.prepared_mpc == True:
-            return True
-        else:
-            return False
 
     def add_encrypted_shares(self, election):
         trustees = Trustee.objects.filter(election=election).order_by('id')
