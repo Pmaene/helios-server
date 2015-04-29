@@ -709,7 +709,7 @@ class ElectionBlackboxTests(WebTest):
             response = cast_form.submit()
 
         self.assertRedirects(
-            response, "%s/en/helios/elections/%s/cast-done" % (settings.URL_HOST, election_id))
+            response, "%s/en/helios/elections/%s/cast-done" % (settings.SECURE_URL_HOST, election_id))
 
         # at this point an email should have gone out to the user
         # at position num_messages after, since that was the len() before we

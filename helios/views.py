@@ -73,20 +73,20 @@ ELGAMAL_PARAMS_LD_OBJECT = datatypes.LDObject.instantiate(ELGAMAL_PARAMS, dataty
 
 
 def get_election_url(election):
-    return settings.URL_HOST + reverse(election_shortcut, args=[election.short_name])
+    return settings.SECURE_URL_HOST + reverse(election_shortcut, args=[election.short_name])
 
 
 def get_election_badge_url(election):
-    return settings.URL_HOST + reverse(election_badge, args=[election.uuid])
+    return settings.SECURE_URL_HOST + reverse(election_badge, args=[election.uuid])
 
 
 def get_election_govote_url(election):
-    return settings.URL_HOST + reverse(election_vote_shortcut, args=[election.short_name])
+    return settings.SECURE_URL_HOST + reverse(election_vote_shortcut, args=[election.short_name])
 
 
 def get_castvote_url(cast_vote):
     translation.activate("en")
-    return settings.URL_HOST + reverse(castvote_shortcut, args=[cast_vote.vote_tinyhash])
+    return settings.SECURE_URL_HOST + re.sub(r'^\/[a-z]{2}', '', reverse(castvote_shortcut, args=[cast_vote.vote_tinyhash]))
 
 
 ##
@@ -135,10 +135,10 @@ def admin_autologin(request):
 
     users = User.objects.filter(admin_p=True)
     if len(users) == 0:
-        return HttpResponse("no admin users!")
+        return HttpResponse("No admin users!")
 
     if len(users) == 0:
-        return HttpResponse("no users!")
+        return HttpResponse("No users!")
 
     user = users[0]
     request.session['user'] = {'type': user.user_type, 'user_id': user.user_id}
@@ -1087,7 +1087,7 @@ def one_election_cast_confirm(request, election):
     # if no encrypted vote, the user is reloading this page or otherwise
     # getting here in a bad way
     if not request.session.has_key('encrypted_vote'):
-        return HttpResponseRedirect(settings.URL_HOST)
+        return HttpResponseRedirect(settings.SECURE_URL_HOST)
 
     # election not frozen or started
     if not election.voting_has_started():
@@ -1187,7 +1187,7 @@ def one_election_cast_confirm(request, election):
 
         # voting has not started or has ended
         if (not election.voting_has_started()) or election.voting_has_stopped():
-            return HttpResponseRedirect(settings.URL_HOST)
+            return HttpResponseRedirect(settings.SECURE_URL_HOST)
 
         # if user is not logged in
         # bring back to the confirmation page to let him know
@@ -1209,7 +1209,7 @@ def one_election_cast_confirm(request, election):
         # remove the vote from the store
         del request.session['encrypted_vote']
 
-        return HttpResponseRedirect("%s%s" % (settings.URL_HOST, reverse(one_election_cast_done, args=[election.uuid])))
+        return HttpResponseRedirect("%s%s" % (settings.SECURE_URL_HOST, reverse(one_election_cast_done, args=[election.uuid])))
 
 
 @election_view()
