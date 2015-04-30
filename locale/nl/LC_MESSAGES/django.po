@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-17 12:00+0200\n"
+"POT-Creation-Date: 2015-04-30 11:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,11 +26,11 @@ msgstr "Kiezers-ID"
 msgid "Password"
 msgstr "Wachtwoord"
 
-#: helios/models.py:321
+#: helios/models.py:326
 msgid "Anyone!"
 msgstr "Iedereen!"
 
-#: helios/models.py:334
+#: helios/models.py:339
 #, python-format
 msgid "Any %s user"
 msgstr "Elke %s gebruiker"
@@ -74,9 +74,8 @@ msgid "You can cast as many ballots as you want: only the last one counts."
 msgstr "Je kan zo vaak stemmen als je wil: alleen de laatste wordt meegeteld."
 
 #: helios/templates/election_cast_confirm.html:66
-#, python-format
-msgid "I am <u>%(voter)s</u>, submit my vote!"
-msgstr "Ik ben <u>%(voter)s</u>, bewaar mijn stem!"
+msgid "Dear <u>%(voter)s</u>, click here to submit your vote!"
+msgstr "Beste <u>%(voter)s</u>, klik hier om je stem te bewaren!"
 
 #: helios/templates/election_cast_confirm.html:66
 msgid "Cancel"
@@ -185,8 +184,7 @@ msgid ""
 msgstr ""
 "\n"
 "          Proficiat, je stem werd <b>bewaard</b>! Indien je reeds gestemd \n"
-"had, zal je vorige stem niet meegeteld worden."
-"        "
+"had, zal je vorige stem niet meegeteld worden.        "
 
 #: helios/templates/election_cast_done.html:33
 msgid "For your safety, we have logged you out."
@@ -242,17 +240,16 @@ msgstr "Beschrijving"
 msgid "This election is complete."
 msgstr "Deze verkiezing is afgelopen."
 
-#: helios/templates/election_view.html:79
+#: helios/templates/election_view.html:80
 msgid "Participation"
 msgstr "Deelname"
 
-#: helios/templates/election_view.html:82
-#, python-format
+#: helios/templates/election_view.html:83
 msgid ""
 "\n"
-"              %(num_voters_cast)s out of %(num_voters)s voters cast their "
+"                %(num_voters_cast)s out of %(num_voters)s voters cast their "
 "vote, or %(participation_percentage)s%%.\n"
-"            "
+"              "
 msgstr ""
 "\n"
 "              %(num_voters_cast)s van de %(num_voters)s kiezers brachten hun "

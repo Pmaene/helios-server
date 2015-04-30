@@ -63,7 +63,7 @@
                   </div>
 
                   <div align="center">
-                    <button type="submit" class="remove_unload">{% blocktrans with voter=voter.display_html_big|safe %}I am <u>{{voter}}</u>, submit my vote!{% endblocktrans %}</button><br /><a class="small secondary button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Cancel" %}</a>
+                    <button type="submit" class="remove_unload">{% blocktrans with voter=voter.display_html_big|safe %}Dear <u>{{voter}}</u>, click here to submit your vote!{% endblocktrans %}</button><br /><a class="small secondary button" href="{% url 'helios.views.one_election_view' election.uuid %}">{% trans "Cancel" %}</a>
                   </div>
 
                   <div id="waiting_div">

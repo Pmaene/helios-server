@@ -748,7 +748,7 @@ def trustee_keygenerator_threshold(request, election, trustee):
 
         # verify the proof
         if not public_key_enc.verify_sk_proof(pok_enc, algs.DLog_challenge_generator):
-            raise Exception("Bad proof for public encryption key")
+            raise Exception('Bad proof for public encryption key')
 
         key.public_key_encrypt = utils.to_json(public_key_enc.to_dict())
         key.pok_encrypt = utils.to_json(pok_enc.to_dict())
@@ -1078,6 +1078,9 @@ def password_voter_login(request, election):
 
 @election_view()
 def one_election_cast_confirm(request, election):
+    # store the user's language
+    request.session['language'] = translation.get_language()
+
     user = get_user(request)
 
     return_url = reverse(one_election_cast_confirm, args=[election.uuid])
@@ -1251,6 +1254,9 @@ def one_election_cast_done(request, election):
 
     # tweet/fb your vote
     socialbuttons_url = get_socialbuttons_url(cv_url, 'I cast a vote in %s' % election.name)
+
+    if request.session.has_key('language'):
+        translation.activate(request.session['language'])
 
     # remote logout is happening asynchronously in an iframe to be modular given the logout mechanism
     # include_user is set to False if logout is happening
@@ -1728,7 +1734,7 @@ def voters_email(request, election):
 
     template = request.REQUEST.get('template', 'vote')
     if not template in [t[0] for t in TEMPLATES]:
-        raise Exception("bad template")
+        raise Exception('Bad template')
 
     voter_id = request.REQUEST.get('voter_id', None)
 

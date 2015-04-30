@@ -699,7 +699,7 @@ class ElectionBlackboxTests(WebTest):
             # cast_confirm_page = cast_confirm_page.follow()
         else:
             # here we should be at the cast-confirm page and logged in
-            self.assertContains(cast_confirm_page, "submit my vote")
+            self.assertContains(cast_confirm_page, "submit your vote")
 
             # confirm the vote, now with the actual form
             cast_form = cast_confirm_page.form
