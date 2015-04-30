@@ -29,10 +29,13 @@ Je kan je biljet terugvinden op de volgende pagina:
         body += """
 Deze verkiezing gebruikt een alias voor elke kiezer om je privacy te beschermen.
 Je alias is: %s.
-
-
-
 """ % voter.alias
+
+    body += """
+
+
+
+"""
 
     body += """
 You have successfully cast a vote in %s.
