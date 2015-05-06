@@ -368,7 +368,7 @@ def one_election_view(request, election):
     if settings.SHOW_PARTICIPATION_INFO and election.result:
         num_voters = len(Voter.get_by_election(election))
         num_voters_cast = len(Voter.get_by_election(election, True))
-        participation_percentage = round(float(num_voters_cast)/float(num_voters), 2)*100
+        participation_percentage = round(float(num_voters_cast)/float(num_voters)*100, 2)
 
     return render_template(request, 'election_view', {
         'election': election,
