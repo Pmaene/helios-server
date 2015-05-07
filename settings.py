@@ -33,6 +33,9 @@ SHOW_USER_INFO = (get_from_env('SHOW_USER_INFO', '1') == '1')
 # Whether or not to show the participation info on the election view
 SHOW_PARTICIPATION_INFO = (get_from_env('SHOW_PARTICIPATION_INFO', '0') == '1')
 
+# We might not want the winner to be visually distinct
+SHOW_WINNER = (get_from_env('SHOW_WINNER_BOLD', '1') == '1')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
