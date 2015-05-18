@@ -996,7 +996,6 @@ def one_election_cast(request, election):
         return HttpResponseRedirect("%s%s" % (settings.SECURE_URL_HOST, reverse(one_election_view, args=[election.uuid])))
 
     user = get_user(request)
-    request.session['django_language'] = translation.get_language()
 
     encrypted_vote = request.POST['encrypted_vote']
     save_in_session_across_logouts(request, 'encrypted_vote', encrypted_vote)
