@@ -60,28 +60,22 @@
       $('#pk_textarea_enc').val(pk_val_enc);
       $('#pk_textarea_sign').val(pk_val_sign);
 
-      $('#pk_hash_enc').html(b64_sha256(jQuery.toJSON(PUBLIC_KEY_ENC)));
-      $('#pk_hash_sign').html(b64_sha256(jQuery.toJSON(PUBLIC_KEY_SIGN)));
+      var blob = new Blob(
+        ['{"encryption":' + jQuery.toJSON(SECRET_KEY_ENC) + ', "signing": ' + jQuery.toJSON(SECRET_KEY_SIGN) + '}'],
+        {type: 'application/json'}
+      );
+
+      var fullkey = '{"encryption":' + jQuery.toJSON(PUBLIC_KEY_ENC) + ', "signing": ' + jQuery.toJSON(PUBLIC_KEY_SIGN) + '}';
+
+      $('#pk_hash').html(b64_sha256(fullkey));
 
       show_sk();
     }
 
     function show_sk() {
       $('#sk_download').show();
-    }
-
-    function download_sk_enc() {
-      var blob = new Blob([jQuery.toJSON(SECRET_KEY_ENC)], {type: 'application/json'});
-      var url = URL.createObjectURL(blob);
-
-      saveAs(blob, 'encryption_key.json');
-    }
-
-    function download_sk_sign() {
-      var blob = new Blob([jQuery.toJSON(SECRET_KEY_SIGN)], {type: 'application/json'});
-      var url = URL.createObjectURL(blob);
-
-      saveAs(blob, 'signing_key.json');
+      $('#pk_submit').hide();
+    
     }
 
     function download_sk() {
@@ -92,25 +86,9 @@
       var url = URL.createObjectURL(blob);
 
       saveAs(blob, 'communication_keys.json');
+      $('#pk_submit').show();
     }
 
-    var SK_ENC_DOWNLOADED = false;
-    var SK_SIGN_DOWNLOADED = false;
-
-    function show_pk() {
-      $('#sk_download').hide();
-      $('#name').show();
-      $('#email').show();
-
-      $('#pk_hash_enc').show();
-      $('#pk_hash_sign').show();
-
-      $('#pk_form').show();
-
-      window.onbeforeunload = function() {
-        return 'You have not yet uploaded your public keys.';
-      };
-    }
   </script>
 
   <div class="row">
@@ -132,30 +110,18 @@
           Your key pairs have been generated and you can now save the secret keys. <b>It is important that you do not lose these files, because you will need them to complete the key ceremony.</b>
         </p>
 
+	<p>
+          The fingerprint of your public keys is <tt id="pk_hash"></tt>. You may want to save these to confirm that your public key was properly stored by the server.
+        </p>
+
         <button id="sk_link" onclick="download_sk(); $('#pk_link').show(); $('#sk_link').addClass('secondary'); return false;">Save Secret Keys</button>
-        <button id="pk_link" onclick="show_pk(); return false;" style="display: none;">Upload Your Public Keys &raquo;</button>
-      </div>
-
-      <div id="pk_form">
-        <h3>Upload Your Public Keys</h3>
-
-        <p>
-          It's time to upload the public key to the server.
-        </p>
-
-        <p>
-          The fingerprint of your public key for encryption is <tt id="pk_hash_enc"></tt>. The fingerprint of your public key for signing is <tt id="pk_hash_sign"></tt>. You may want to save these to confirm that your public key was properly stored by the server.
-        </p>
-
-        <p>
-          <i>Your public keys are not currently being displayed because you do not need to save them; their fingerprint is sufficient.</i>
-        </p>
 
         <form method="post">
           <textarea id="pk_textarea_enc" name="public_key_json_enc" style="height: 100px; display: none;"></textarea>
           <textarea id="pk_textarea_sign" name="public_key_json_sign" style="height: 100px; display: none;"></textarea>
-          <input class="button" id="pk_submit" type="submit" value="Upload Public Keys">
+          <input class="button" id="pk_submit" type="submit" value="Upload Public Keys &raquo;">
         </form>
+
 
         <div id="applet_div"></div>
       </div>

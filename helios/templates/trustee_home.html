@@ -184,10 +184,7 @@
           $('#first_step_waiting_div').hide();
           $('#second_step').show();
           $('#encry_shares_textarea').val(encry_shares_text);
-
-          window.onbeforeunload = function() {
-            return 'You have not yet uploaded your encrypted shares.';
-          };
+	  submit_result();
         }
       } else {
         $('#first_step_waiting_div').hide();
@@ -208,7 +205,7 @@
         success: function(result) {
           $('#second_step_waiting_div').hide();
           if (result != 'FAILURE') {
-            $('#done').show();
+		location.reload(true);	    
           } else {
             alert('Verification failed, you probably used the wrong key.');
             reset();
@@ -374,6 +371,7 @@
 
     function show_sk() {
       $('#sk_download').show();
+      $('#pk_button_submit').hide();
     }
 
     function download_sk() {
@@ -381,16 +379,13 @@
       var url = URL.createObjectURL(blob);
 
       saveAs(blob, 'secret_key.json');
-    }
-
-    function show_pk() {
-      $('#sk_download').hide();
       $('#pk_hash').show();
       $('#pk_form').show();
-
+      $('#pk_button_submit').show();
       window.onbeforeunload = function() {
         return 'You have not yet uploaded your public key.';
       };
+
     }
 
     function handleFileSelect(e) {
@@ -418,7 +413,7 @@
         window.onbeforeunload = null;
       });
 
-      $('#pk_form form').submit(function() {
+      $('#sk_download form').submit(function() {
         window.onbeforeunload = null;
       });
     });
@@ -488,6 +483,11 @@
         <a class="button" href="{% url 'helios.views.trustee_check_sk' election.uuid trustee.uuid %}">Verify Your Secret Key &raquo;</a>
       {% endif %}
 
+<!--------------------------------------------------
+  --
+  -- NON-THRESHOLD
+  --
+  -------------------------------------------------->
       {% if not election.use_threshold %}
         {% if not trustee.public_key %}
           <p>
@@ -501,6 +501,11 @@
           <a class="button" href="{% url 'helios.views.trustee_keygenerator' election.uuid trustee.uuid %}">Generate Key Pair &raquo;</a>
         {% endif %}
       {% else %}
+<!--------------------------------------------------
+  --
+  -- THRESHOLD (no communication keys)
+  --
+  -------------------------------------------------->
         {% if not trustee.key %}
           <p>
             You will first need to generate two key pairs: one for encryption and one for signing. Both pairs will be used to secure the communication with the other trustees during the key ceremony. A generator is provided that runs entirely in your browser, so that the generated secret key will not leave your machine.
@@ -508,29 +513,39 @@
 
           <a class="button" href="{% url 'helios.views.trustee_keygenerator_threshold' election.uuid trustee.uuid %}">Generate Key Pairs</a>
         {% else %}
+<!--------------------------------------------------
+  --
+  -- THRESHOLD (waiting for other keys)
+  --
+  -------------------------------------------------->
           {% if not scheme_params_json or not election.trustees_added_communication_keys %}
             {% if not scheme_params_json %}
               <div data-alert class="alert-box info">
-                <b>Next</b> You have to wait for the election administrator to define the threshold scheme before you can generate your encrypted shares.
+                <b>Next</b> You have to wait for the election administrator to define the threshold scheme before you can generate your encrypted shares. <a href="javascript:location.reload(true);">Try again</a>
               </div>
             {% else %}
               <div data-alert class="alert-box info">
-                <b>Next</b> You have to wait for the other trustees to upload their communication keys.
+                <b>Next</b> You have to wait for the other trustees to upload their communication keys. <a href="javascript:location.reload(true);">Try again</a>
               </div>
             {% endif %}
           {% else %}
             {% if not trustee.added_encrypted_shares %}
+<!--------------------------------------------------
+  --
+  -- THRESHOLD (generate shares)
+  --
+  -------------------------------------------------->
               <div id="first_step">
                 <h3>Generate Your Encrypted Shares</h3>
 
                 <p>
-                  To generate your encrypted shares, you first have to enter your secret key for signing. If you generated your key pair with our generator, it was stored in a file called <tt>communication_keys.json</tt>. This file contains your private keys, which are unknown to the server. This is the reason you need it here again.
+                  To generate your encrypted shares, you first have to enter your secret communication keys. If you generated your key pair with our generator, it was stored in a file called <tt>communication_keys.json</tt>. This file contains your private keys, which are unknown to the server. This is the reason you need it here again.
                 </p>
 
                 <form>
                   <div class="row">
                     <div class="large-3 columns">
-                      <label for="sk_upload" class="right inline">Secret Key for Signing</label>
+                      <label for="sk_upload" class="right inline">Secret Key</label>
                     </div>
                     <div class="large-9 columns">
                       <input type="file" name="sk_upload" class="sk_upload" data-output="sk_textarea_signing" />
@@ -545,7 +560,7 @@
 
                   <div class="row">
                     <div class="large-9 large-offset-3 columns">
-                      <button onclick="calculate_shares(); return false;">Generate Your Encrypted Shares</button>
+                      <button onclick="calculate_shares(); return false;">Generate and Upload Your Encrypted Shares</button>
                     </div>
                   </div>
                 </form>
@@ -598,6 +613,11 @@
                     </div>
                   </div>
                 {% else %}
+<!--------------------------------------------------
+  --
+  -- THRESHOLD (download shares + compute key)
+  --
+  -------------------------------------------------->
                   <div id="third_step">
                     <h3>Decrypt Encrypted Shares and Calculate Your Keypair</h3>
 
@@ -647,30 +667,17 @@
                     <p>
                       Your key pair has been calculated and you can now save the secret key. <b>It is important that you do not lose this file, because you will need it if you are one of the trustees asked to decrypt the tally.</b>
                     </p>
-
-                    <button id="sk_link" onclick="download_sk(); $('#pk_link').show(); $('#sk_link').addClass('secondary'); return false;">Save Secret Key</button>
-                    <button id="pk_link" onclick="show_pk(); return false;" style="display: none;">Upload Your Public Key &raquo;</button>
-                  </div>
-
-                  <div id="pk_form" style="display: none;">
-                    <h3>Upload Your Public Key</h3>
-
-                    <p>
-                      It's time to upload the public key to the server.
-                    </p>
-
-                    <p>
+		    <p>
                       The fingerprint of your public key is: <tt id="pk_hash"></tt>. You may want to save this to confirm that your public key was properly stored by the server.
                     </p>
 
-                    <p>
-                      <i>Your public key is not currently being displayed because you do not need to save it, the fingerprint is sufficient.</i>
-                    </p>
+                    <button id="sk_link" onclick="download_sk(); $('#pk_link').show(); $('#sk_link').addClass('secondary'); return false;">Save Secret Key</button>
 
-                    <form method="post" action="{% url 'helios.views.trustee_upload_pk' election.uuid trustee.uuid %}">
+		    <form method="post" action="{% url 'helios.views.trustee_upload_pk' election.uuid trustee.uuid %}">
                       <textarea id="pk_textarea" name="public_key_json" style="display: none;"></textarea>
-                      <input class="button" type="submit" value="Upload Public Key">
+                      <input class="button" type="submit" id="pk_button_submit" value="Upload Public Key">
                     </form>
+
                   </div>
                 {% endif %}
               {% endif %}
@@ -678,8 +685,6 @@
 
             <div id="done" style="display: none;">
               <h3>Done</h3>
-
-              <a class="button" href="{% url 'helios.views.one_election_view' election.uuid %}">Back to Election</a>
             </div>
 
             <div data-alert class="alert-box warning" id="error" style="display: none;">

@@ -38,6 +38,11 @@ def home(request):
         elections_administered = None
 
     if user:
+        elections_trustee = Trustee.get_by_user(user)
+    else:
+	elections_trustee = None
+
+    if user:
         elections_voted = Election.get_by_user_as_voter(user, limit=5)
     else:
         elections_voted = None
@@ -54,6 +59,7 @@ def home(request):
             'elections': featured_elections,
             'elections_administered': elections_administered,
             'elections_voted': elections_voted,
+            'elections_trustee': elections_trustee,
             'create_p': create_p,
             'login_box': login_box
         }

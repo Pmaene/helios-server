@@ -185,7 +185,9 @@ def trustee_check(func):
 
         trustee = Trustee.get_by_election_and_uuid(election, trustee_uuid)
 
-        if trustee == get_logged_in_trustee(request):
+	user = get_user(request)
+
+	if (user and user == trustee.user) or (trustee == get_logged_in_trustee(request)):
             return func(request, election, trustee, *args, **kwargs)
         else:
             raise PermissionDenied()

@@ -32,6 +32,10 @@ Je alias is: %s.
 """ % voter.alias
 
     body += """
+De vingerafdruk van je stem is: %s
+""" % cast_vote.vote_hash
+
+    body += """
 
 
 
@@ -50,6 +54,10 @@ Your ballot is archived at:
 This election uses voter aliases to protect your privacy.
 Your voter alias is: %s.
 """ % voter.alias
+
+    body += """
+The fingerprint of your vote is: %s
+""" % cast_vote.vote_hash
 
     body += """
 --

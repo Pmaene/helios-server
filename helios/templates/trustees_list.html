@@ -81,7 +81,7 @@
         {% endif %}
       {% endif %}
 
-      <h3>Public Keys</h3>
+      <h3>Communication Keys</h3>
 
       <table>
         <thead>
@@ -90,8 +90,7 @@
             {% if not election.use_threshold %}
               <td>Public Key</td>
             {% else %}
-              <td>Public Key for Signing</td>
-              <td>Public Key for Encryption</td>
+              <td>Public Keys Fingerprint</td>
             {% endif %}
           </tr>
         </thead>
@@ -118,7 +117,7 @@
                   {% endif %}
                 {% endif %}
 
-                {% if admin_p %}<span title="{{t.email}}">{% endif %}{{t.name}}{% if admin_p %}</span>{% endif %}
+                {% if admin_p %}<span title="{{t.email}}">{% endif %}{{t.name}}{%if t.user %} ({{t.user.user_id}}){% endif %}{% if admin_p %}</span>{% endif %}
               </td>
               {% if not election.use_threshold %}
                 <td>
@@ -132,13 +131,6 @@
                 <td>
                   {% if t.key.public_key_encrypt_hash %}
                     <tt>{{t.key.public_key_encrypt_hash}}</tt>
-                  {% else %}
-                    <i>Not uploaded yet.</i>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if t.key.public_key_signing_hash %}
-                    <tt>{{t.key.public_key_signing_hash}}</tt>
                   {% else %}
                     <i>Not uploaded yet.</i>
                   {% endif %}

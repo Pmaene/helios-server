@@ -239,6 +239,19 @@ class Election(HeliosModel):
             return query
 
     @classmethod
+    def get_by_user_as_trustee(cls, user, archived_p=None, limit=None):
+        query = cls.objects.filter(trustee__user=user)
+        if archived_p == True:
+            query = query.exclude(archived_at=None)
+        if archived_p == False:
+            query = query.filter(archived_at=None)
+        query = query.order_by('-created_at')
+        if limit:
+            return query[:limit]
+        else:
+            return query
+
+    @classmethod
     def get_by_user_as_voter(cls, user, archived_p=None, limit=None):
         query = cls.objects.filter(voter__user=user)
         if archived_p == True:
@@ -675,8 +688,7 @@ class Election(HeliosModel):
                 key.public_key_signing = utils.to_json(keypair.pk.to_dict())
                 secret_key.secret_key_signing = utils.to_json(keypair.sk.to_dict())
                 key.pok_signing = keypair.sk.prove_sk(algs.DLog_challenge_generator)
-                key.public_key_encrypt_hash = utils.hash_b64(key.public_key_encrypt)
-                key.public_key_signing_hash = utils.hash_b64(key.public_key_signing)
+                key.public_key_encrypt_hash = utils.hash_b64('{"encryption":' + key.public_key_encrypt   + ', "signing": ' + key.public_key_signing + '}'  )
                 key.save()
                 secret_key.public_key = key
                 secret_key.save()
@@ -1421,6 +1433,10 @@ class IncorrectShare(models.Model):
 class Trustee(HeliosModel):
     election = models.ForeignKey(Election)
 
+    # for users of type password, no user object is created
+    # but a dynamic user object is created automatically
+    user = models.ForeignKey('helios_auth.User', null=True)
+
     uuid = models.CharField(max_length=50)
     name = models.CharField(max_length=200)
     email = models.EmailField()
@@ -1476,6 +1492,10 @@ class Trustee(HeliosModel):
     @classmethod
     def get_by_uuid(cls, uuid):
         return cls.objects.get(uuid=uuid)
+
+    @classmethod
+    def get_by_user(cls, user):
+        return cls.objects.filter(user=user).order_by('id')
 
     @classmethod
     def get_by_election_and_uuid(cls, election, uuid):

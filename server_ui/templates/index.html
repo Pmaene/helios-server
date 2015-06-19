@@ -90,9 +90,31 @@
               <a class="tiny button right" href="{% url 'helios.views.elections_administered' %}">See All</a>
             </div>
           </div>
+
+          <div class="row">
+            <div class="large-12 columns">
+              <h5 class="subheader">Trustee</h5>
+              {% if elections_trustee %}
+                <ul class="no-bullet">
+                  {% for trustee in elections_trustee %}
+                    <li> <a href="{% url 'helios.views.trustee_home' trustee.election.uuid trustee.uuid %}">{{trustee.election.name}}</a></li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <em>None</em>
+              {% endif %}
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="large-12 columns">
+              <a class="tiny button right" href="{% url 'helios.views.elections_administered' %}">See All</a>
+            </div>
+          </div>
         {% endif %}
 
-        <div class="row">
+        <div class="row">	
           <div class="large-12 columns">
             <h5 class="subheader">Recent Votes</h5>
             {% if elections_voted %}

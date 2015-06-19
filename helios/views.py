@@ -480,8 +480,14 @@ def trustees_create(request, election):
             # get the public key and the hash, and add it
             name = request.POST['name']
             email = request.POST['email']
+            usertype = request.POST['usertype']
+            userid = request.POST['userid']
 
-            trustee = Trustee(uuid=str(uuid.uuid1()), election=election, name=name, email=email)
+            user = None
+            if usertype and userid:
+                user = User.update_or_create(usertype, userid, name, {'email': email})
+
+            trustee = Trustee(uuid=str(uuid.uuid1()), user=user, election=election, name=name, email=email)
             trustee.save()
 
             url = settings.SECURE_URL_HOST + reverse(trustee_login, args=[election.short_name, trustee.email, trustee.secret])
@@ -752,7 +758,6 @@ def trustee_keygenerator_threshold(request, election, trustee):
 
         key.public_key_encrypt = utils.to_json(public_key_enc.to_dict())
         key.pok_encrypt = utils.to_json(pok_enc.to_dict())
-        key.public_key_encrypt_hash = cryptoutils.hash_b64(key.public_key_encrypt)
 
         public_key_and_proof_sign = utils.from_json(request.POST['public_key_json_sign'])
         public_key_sign = algs.EGPublicKey.fromJSONDict(public_key_and_proof_sign['public_key'])
@@ -764,7 +769,8 @@ def trustee_keygenerator_threshold(request, election, trustee):
 
         key.public_key_signing = utils.to_json(public_key_sign.to_dict())
         key.pok_signing = utils.to_json(pok_sign.to_dict())
-        key.public_key_signing_hash = cryptoutils.hash_b64(key.public_key_signing)
+
+        key.public_key_encrypt_hash = cryptoutils.hash_b64('{"encryption":' + key.public_key_encrypt   + ', "signing": ' + key.public_key_signing + '}')
 
         key.save()
 
