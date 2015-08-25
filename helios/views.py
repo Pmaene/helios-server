@@ -493,7 +493,7 @@ def trustees_create(request, election):
                  trustees = Trustee.objects.filter(election=election).order_by('threshold_id')
                  newindex = 1
                  if(len(trustees) > 0):
-                       newindex = trustees[-1].threshold_id+1
+                       newindex = trustees[len(trustees)-1].threshold_id+1
 
                  trustee = Trustee(uuid=str(uuid.uuid1()), user=user, election=election, name=name, email=email, threshold_id=newindex)
                  trustee.save()
