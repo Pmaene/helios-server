@@ -489,8 +489,17 @@ def trustees_create(request, election):
             if usertype and userid:
                 user = User.update_or_create(usertype, userid, name, {'email': email})
 
-            trustee = Trustee(uuid=str(uuid.uuid1()), user=user, election=election, name=name, email=email)
-            trustee.save()
+            if election.use_threshold:
+                 trustees = Trustee.objects.filter(election=election).order_by('threshold_id')
+                 newindex = 1
+                 if(len(trustees) > 0):
+                       newindex = trustees[-1].threshold_id+1
+
+                 trustee = Trustee(uuid=str(uuid.uuid1()), user=user, election=election, name=name, email=email, threshold_id=newindex)
+                 trustee.save()
+            else:
+                 trustee = Trustee(uuid=str(uuid.uuid1()), user=user, election=election, name=name, email=email)
+                 trustee.save()
 
             url = settings.SECURE_URL_HOST + reverse(trustee_login, args=[election.short_name, trustee.email, trustee.secret])
 
