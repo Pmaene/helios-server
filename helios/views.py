@@ -6,7 +6,6 @@ Ben Adida (ben@adida.net)
 """
 
 from django.core.urlresolvers import reverse
-from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from django.http import *
@@ -515,7 +514,7 @@ Your trustee dashboard is at
 Helios
 """ % (trustee.name, election.name, url)
 
-            send_mail("%s - Trustee Dashboard" % election.name, body, settings.SERVER_EMAIL, ["%s <%s>" % (trustee.name, trustee.email)], fail_silently=True)
+            tasks.single_trustee_email.delay(trustee.id, "%s - Trustee Dashboard" % election.name, body, settings.SERVER_EMAIL, ["%s <%s>" % (trustee.name, trustee.email)], fail_silently=True)
 
             return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(trustees_list_view, args=[election.uuid]))
     else:
@@ -653,7 +652,7 @@ Your trustee dashboard is at
 Helios
 """ % (trustee.name, election.name, url)
 
-    send_mail("%s - Trustee Dashboard" % election.name, body, settings.SERVER_EMAIL, ["%s <%s>" % (trustee.name, trustee.email)], fail_silently=True)
+    tasks.single_trustee_email.delay(trustee.id, "%s - Trustee Dashboard" % election.name, body, settings.SERVER_EMAIL, ["%s <%s>" % (trustee.name, trustee.email)], fail_silently=True)
 
     logging.info("URL %s " % url)
     return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(trustees_list_view, args=[election.uuid]))
@@ -671,7 +670,7 @@ def trustees_fullinfo(request,election,trustee):
     scheme = None
     if election.frozen_trustee_list:
         scheme = election.get_scheme()
-    
+
     trustees = Trustee.objects.filter(election=election).order_by('id')
 
     scheme_params_json = None
@@ -686,7 +685,7 @@ def trustees_fullinfo(request,election,trustee):
     encry_shares_dict = {}
 
     encry_shares = SignedEncryptedShare.objects.filter(election_id=election.id).filter(trustee_receiver_id=trustee.id).order_by('trustee_signer_id')
-    
+
 
     return {
         "election_id": election.id,
@@ -734,14 +733,14 @@ def trustee_threshold_uploadkeys(request, election, trustee):
             raise Exception('Bad proof for public signing key')
 
         comm.public_key_signing = public_key_sign
-        comm.pok_signing = pok_sign        
+        comm.pok_signing = pok_sign
 
 #        key.public_key_encrypt_hash = cryptoutils.hash_b64('{"encryption":' + key.public_key_encrypt   + ', "signing": ' + key.public_key_signing + '}')
 
         trustee.communication_keys = comm
         trustee.public_key_commit_hash = request.POST['public_key_commit_hash']
         trustee.storagespace = request.POST['storagespace']
-     
+
         trustee.save()
 
         # send a note to admin
@@ -823,7 +822,7 @@ def trustee_threshold_upload_encrypted_shares(request, election, trustee):
 
     # verify the hash
     if(utils.hash_b64(trustee.public_key_commit) != trustee.public_key_commit_hash):
-	raise Exception("Hash invallid") 
+	raise Exception("Hash invallid")
 
     trustee.added_encrypted_shares = True
     trustee.save()
