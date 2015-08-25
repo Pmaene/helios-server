@@ -1,0 +1,63 @@
+{% extends "helios/templates/cryptobase.html" %}
+
+{% block title %}Trustee Home for {{trustee.name}}{% endblock %}
+{% block top-bar_style %}trustee{% endblock %}
+
+{% block content %}  <div class="row">
+    <div class="large-12 columns">
+      <h2>{{election.name}}&mdash;Trustee Home for {{trustee.name}}</h2>
+
+        <p>
+          This is your trustee homepage. As a trustee, you are responsible for decrypting the result of the election when all votes have been cast. In order to encrypt the votes, the system needs you to generate a key pair.
+        </p>
+      
+      {% if election.frozen_at %}
+        {% if election.encrypted_tally %}
+          {% if trustee.decryption_factors %}
+            <div data-alert class="alert-box info">
+              You have successfully uploaded your decryption.
+            </div>
+          {% else %}
+            <div data-alert class="alert-box info">
+              The encrypted tally for this election is ready.
+            </div>
+
+            <a class="button" href="{% url 'helios.views.trustee_decrypt_and_prove' election.uuid trustee.uuid %}">Decrypt With Your Key</a>
+          {% endif %}
+        {% else %}
+          <div class="alert-box info">
+            <b>Next</b> Once the tally is computed, you will need to come back here to provide your secret key for decryption purposes. You should keep the email with your trustee homepage link, which contains the credentials needed to get back here.
+          </div>
+        {% endif %}
+      {% else %}
+        {% if trustee.public_key %}
+          <div class="alert-box info">
+            <b>Next</b> You have obtained a key pair that will be used to encrypt the ballots. When all trustees have done this, the election administrator will freeze the election.
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {% if trustee.public_key %}
+        <p>
+          You have successfully uploaded your public key, with fingerprint <tt>{{trustee.public_key_hash}}</tt>. If you want to verify whether you still have the correct secret key stored on your machine, you can do so by clicking on the following button.
+        </p>
+
+        <a class="button" href="{% url 'helios.views.trustee_check_sk' election.uuid trustee.uuid %}">Verify Your Secret Key &raquo;</a>
+      {% endif %}
+
+        {% if not trustee.public_key %}
+          <p>
+            As a trustee, you have to generate a key pair that will be used to encrypt the ballots. A generator is provided that runs entirely in your browser, so that the generated secret key will not leave your machine.
+          </p>
+
+          <div data-alert class="alert-box info">
+            You have not yet uploaded your public key.
+          </div>
+
+          <a class="button" href="{% url 'helios.views.trustee_threshold_keygenerator' election.uuid trustee.uuid %}">Generate Key Pair &raquo;</a>
+        {% endif %}
+      
+      <div id="applet_div"></div>
+    </div>
+  </div>
+{% endblock %}
