@@ -5,12 +5,30 @@
 
 {% block content %}
   <script language="javascript">
-    var PUBLIC_KEY_ENC, PROOF_ENC, PUBLIC_KEY_SIGN, PROOF_SIGN;
+    var PUBLIC_KEY_ENC, PROOF_ENC, PUBLIC_KEY_SIGN, PROOF_SIGN, POLYNOMIAL;
+    var STORAGE, HCOMMIT;
+    var STORAGESPACE;
+    var SECRET_STORAGE = null;
+    var SECRET_STORAGE_DOWNLOAD = false;
+    var SCHEME_PARAMS, ELGAMAL_PARAMS;
+    var TRUSTEES;
+    var TRUSTEE;
+    var SHARES;
+    var STAGE = 0;
+    var ALLHASHES;
+    var MYSECRET = null;
 
     function clear_keys() {
       $('#sk_download').hide();
       $('#pk_form').hide();
       $('#buttons').show();
+  	$('#stage_s').hide();
+	$('#stage_0').hide();
+	$('#stage_1').hide();
+	$('#stage_2').hide();
+	$('#stage_3').hide();
+	$('#stage_4').hide();
+      
     }
 
     SECRET_KEY_ENC = null;
@@ -21,14 +39,14 @@
 
     $(document).ready(function() {
       clear_keys();
+      
+      $('.sk_upload').change(handleFileSelect);
 
       // Get some more server-side randomness for keygen
       $.getJSON('{% url 'helios.views.get_randomness' %}', function(result) {
         sjcl.random.addEntropy(result.randomness);
         BigInt.setup(function() {
-          ELGAMAL_PARAMS = ElGamal.Params.fromJSONObject({{eg_params_json|safe}});
-          $('#waiting_message').hide();
-          generate_keypair();
+		start();
         });
       });
 
@@ -36,19 +54,381 @@
         window.onbeforeunload = null;
       });
     });
+    
+    function handleFileSelect(e) {
+        var file = e.target.files[0];
+        var jsonType = /application\/json/;
+
+        var output = $('#' + $(e.target).data('output'));
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          output.val(reader.result);
+        }
+
+        reader.readAsText(file);
+      }
+    
+    function start(){
+        setup_info(function() {
+        	
+        	$('#stage_s').hide();
+        	$('#stage_s_fresh').hide();
+        	$('#stage_0').hide();
+        	$('#stage_1').hide();
+        	$('#stage_2').hide();
+        	$('#stage_3').hide();
+        	$('#stage_4').hide();
+        	$('#stage_5').hide();
+        	$('#stage_e').hide();
+        	
+        	renderoverview();
+        	
+        	if(!SECRET_STORAGE){
+        		// we have no key - ask the user what to do
+        		$('#stage_s').show();
+        		
+        		if(STAGE <= 1){
+        			$('#stage_s_fresh').show();
+        		}
+        		
+        		return;
+        	}
+        	
+        	
+        	$('#stage_'+STAGE).show();
+        	  
+         	switch(STAGE){
+         	case 0: stage0(); break;
+         	case 2: stage2(); break;
+         	case 4: stage4(); break;
+         	}
+         	
+         	
+          
+        });
+    }
+    
+    function storage_key_generate(){
+    	SECRET_STORAGE = sjcl.codec.base64.fromBits(sjcl.random.randomWords(8, 0));
+    	SECRET_STORAGE_DOWNLOAD = true;
+    	start();
+    }
+    
+    function storage_key_upload(){
+    	SECRET_STORAGE = $('#sk_textarea').val().trim();
+    	SECRET_STORAGE_DOWNLOAD = false;
+    	if(sjcl.codec.base64.fromBits(sjcl.codec.base64.toBits(SECRET_STORAGE)).length != SECRET_STORAGE.length)
+    		SECRET_STORAGE = null;
+    	
+    	
+    	if(STORAGESPACE && STORAGESPACE.length > 0){
+    		try {
+    			STORAGE = storage_decrypt(SECRET_STORAGE,STORAGESPACE);
+    		} catch (e){
+    			fatalerror("Storage decryption failed - did you use the correct key?");
+    			SECRET_STORAGE = null;
+    		}
+    		
+    	}
+    	
+    	start();
+    }
+    
+    function renderoverview(){
+   	
+    	var content = "<table><tr><th>Name</th><th>Step 1</th><th>Step 2</th><th>Step 3</th></tr>";
+    	
+    	for(var i=0;i<TRUSTEES.length;i++){
+    		var t = TRUSTEES[i];
+    		
+    		content += "<tr><td>"+ t.name +"</td>";
+    		
+    		if(t.communication_keys && t.public_key_commit_hash)
+    			content += "<td>Done</td>";
+    		else
+    			content += "<td></td>";
+    			
+    		if(t.public_key_commit && t.added_encrypted_shares && t.public_key_threshold)
+        		content += "<td>Done</td>";
+        	else
+        		content += "<td></td>";
+        		
+        	if(t.pok && t.public_key)
+            	content += "<td>Done</td>";
+            else
+            	content += "<td></td>";
+    		
+    		content += "</tr>";
+    	}
+    	content += "</table>";
+    	
+    	$('#trustees').html(content);
+    }
+    
+    function stage0(){
+    	$('#stage_0_waiting').show();
+    	$('#stage_0_download').hide();
+    	
+    	generate_keypair();
+
+        var n = SCHEME_PARAMS.n;
+        var k = SCHEME_PARAMS.k;
+        
+        var s = Random.getRandomInteger(ELGAMAL_PARAMS.q);
+        POLYNOMIAL =  new thresholdalgs.Polynomial(s, k, ELGAMAL_PARAMS);
+        
+        COMMIT = new thresholdalgs.CommitmentE(ELGAMAL_PARAMS,null);
+        COMMIT.generate(POLYNOMIAL);
+        HCOMMIT = COMMIT.gethash();
+                  
+        save_info();
+         
+        $('#stage_0_waiting').hide();
+    	$('#stage_0_download').show();
+    }
+    
+    function stage2(){
+    	$('#stage_2_upload').hide();
+    	$('#stage_2_waiting').show();
+    	SHARES = calculate_shares();
+    	
+    	var allhashes = [];
+    	for(var i = 0; i < TRUSTEES.length; i++){
+    		allhashes.push(TRUSTEES[i].public_key_commit_hash);
+    	}
+    	ALLHASHES = allhashes;
+    	
+    	save_info();
+    	$('#stage_2_upload').show();
+    	$('#stage_2_waiting').hide();
+    }
+    
+    function stage2_upload(){
+    	var egpublic_key = new ElGamal.PublicKey(ELGAMAL_PARAMS.p,ELGAMAL_PARAMS.q,ELGAMAL_PARAMS.g,COMMIT.value[0])
+    	$.post('{% url 'helios.views.trustee_threshold_upload_encrypted_shares' election.uuid trustee.uuid %}', 
+    			$.param({storagespace:STORAGE,
+    				public_key_commit: jQuery.toJSON(COMMIT.toJSONObject()),
+    				public_key: jQuery.toJSON(egpublic_key.toJSONObject()),
+    				shares: SHARES
+    			}), 
+    			function(result) {
+    		start();
+        },"text").fail(function(){ window.console.log("Upload failed"); });
+    }
+    
+    function stage4(){
+    	$('#stage_4_waiting').show();
+    	var points = [];
+    	for(var i=0;i<ENCRYPTED_SHARES.length;i++){
+    		var encshareobj = jQuery.parseJSON(ENCRYPTED_SHARES[i].share);
+    		var share = thresholdalgs.SignedEncryptedShare.fromJSONObject(encshareobj,ENCRYPTED_SHARES[i].trustee_receiver_id);
+    		var sender = gettrustee(ENCRYPTED_SHARES[i].trustee_signer_id);
+    		
+    		
+    		
+    		var sender_sigkey = ElGamal.PublicKey.fromJSONObject(sender.communication_keys.public_key_signing);
+    		
+    		// validate signature
+    		if(!share.sig.verify(share.encr_share.get_json_string(), sender_sigkey, ELGAMAL_PARAMS)){
+    			fatalerror("Signature validation failed");
+    			return;
+    		} 
+    		
+    		// decrypt
+    		var point = share.encr_share.decrypt(SECRET_KEY_ENC);
+    		
+    		if(!point.x_value.toString() == ""+TRUSTEE.threshold_id){
+    			fatalerror("Invalid x-coordinate");
+    			return;
+    		}
+    		
+    		var sendercommit = thresholdalgs.CommitmentE.fromJSONObject(jQuery.parseJSON(sender.public_key_commit),ELGAMAL_PARAMS);
+    		
+    		if(!sendercommit.validate(TRUSTEE.threshold_id,point.y_value)){
+    			fatalerror("Share validation failed");
+    			return;
+    		}
+    		// TODO - check commit hash
+    		
+    		
+    		points.push(point);
+    		
+    	
+    		
+    	}
+  
+    	var mysecret = BigInt.ZERO;
+    	for(var i=0;i<points.length;i++){
+    		mysecret = mysecret.add(points[i].y_value).mod(ELGAMAL_PARAMS.q);
+    	}
+    	
+    	
+    	
+    		
+    	var pk_val = ELGAMAL_PARAMS.g.modPow(mysecret,ELGAMAL_PARAMS.p).mod(ELGAMAL_PARAMS.p);
+        egpk = new ElGamal.PublicKey(ELGAMAL_PARAMS.p,ELGAMAL_PARAMS.q,ELGAMAL_PARAMS.g,pk_val);
+        
+    	egsk = new ElGamal.SecretKey(mysecret,egpk);
+    	MYSECRET = egsk;
+        POK = egsk.proveKnowledge(ElGamal.fiatshamir_dlog_challenge_generator);
+        
+
+    	save_info();
+    	
+        $('#stage_4_waiting').hide();
+        $('#stage_4_upload').show();
+    }
+    
+  	
+	function stage4_upload(){
+		$.post('{% url 'helios.views.trustee_threshold_upload_pk' election.uuid trustee.uuid %}', 
+    			$.param({storagespace:STORAGE,
+    				pok: jQuery.toJSON(POK.toJSONObject())
+    			}), 
+    			function(result) {
+    		start();
+	     },"text").fail(function(){ window.console.log("Upload failed"); });
+	}
+	
+    
+    function gettrustee(id){
+    	for(var i=0;i<TRUSTEES.length;i++){
+    		if(TRUSTEES[i].id == id)
+    			return TRUSTEES[i];
+    	}
+    	return null;
+    }
+    
+    function save_info(){
+    	STORAGE = storage_encrypt(SECRET_STORAGE,jQuery.toJSON({
+    		'poly': POLYNOMIAL, 
+    		'commit': COMMIT, 
+    		'encryption': SECRET_KEY_ENC, 
+    		'signing': SECRET_KEY_SIGN, 
+    		'hashes': ALLHASHES,
+			'secret': MYSECRET}));
+    }
+    
+    function setup_info(callback){
+    	$.getJSON('{% url 'helios.views.trustees_fullinfo' election.uuid trustee.uuid%}', function(result) {
+    			ELGAMAL_PARAMS = ElGamal.Params.fromJSONObject(result.eg_params);
+        		SCHEME_PARAMS = thresholdalgs.ThresholdScheme.fromJSONObject(result.scheme_params);
+        		TRUSTEES = result.trustees;
+        		TRUSTEE = result.trustee;
+        		STORAGESPACE = result.storagespace;
+        		ENCRYPTED_SHARES = result.encry_shares;
+        		
+        		STAGE = determine_stage();
+        		
+        		if(STAGE > 0 && result.storagespace != null && SECRET_STORAGE != null){
+        			try {
+        				STORAGE = storage_decrypt(SECRET_STORAGE,result.storagespace);
+        				
+        				
+        				storagejson = jQuery.parseJSON(STORAGE);
+        				if(storagejson.poly){
+        					POLYNOMIAL = thresholdalgs.Polynomial.fromJSONObject(storagejson.poly,ELGAMAL_PARAMS);
+        				}
+        				SECRET_KEY_ENC = ElGamal.SecretKey.fromJSONObject(storagejson.encryption); 
+						SECRET_KEY_SIGN = ElGamal.SecretKey.fromJSONObject(storagejson.signing);
+						
+						COMMIT = thresholdalgs.CommitmentE.fromJSONObject(storagejson.commit,ELGAMAL_PARAMS);
+						
+        				ALLHASHES = storagejson.hashes;
+        				
+        				if(storagejson.secret)
+        					MYSECRET = ElGamal.SecretKey.fromJSONObject(storagejson.secret);
+        				else
+        					MYSECRET = null;
+        			} catch (e){
+        				fatalerror(e);
+        				return;
+        			}
+        			
+        		}
+        		callback();
+        	});
+    }
+    
+    function calculate_shares() {
+        var p = ELGAMAL_PARAMS.p;
+        var g = ELGAMAL_PARAMS.g;
+        var q = ELGAMAL_PARAMS.q;
+		var n = SCHEME_PARAMS.n;
+        var k = SCHEME_PARAMS.k;
+      
+        var correct_shares = true;
+        var pk_signer = ElGamal.PublicKey.fromJSONObject(TRUSTEE.communication_keys.public_key_signing);
+        if ((g.modPow(SECRET_KEY_SIGN.x,p).toString()) != (ElGamal.PublicKey.fromJSONObject(TRUSTEE.communication_keys.public_key_signing).y.toString())) {
+        	window.console.log("Error");
+        }
+        var shares = [];
+      		  for (var i = 0; i < n; i++) {        			
+        			var trustee_receiver_id = TRUSTEES[i].threshold_id;        			
+        			
+        			var pk_encrypt_receiver = ElGamal.PublicKey.fromJSONObject(TRUSTEES[i].communication_keys.public_key_encrypt);
+        			var pk_check = pk_encrypt_receiver.y.toJSONObject();
+
+        			var point = POLYNOMIAL.create_point(trustee_receiver_id);
+        			if (point.x_value != trustee_receiver_id)
+        				correct_shares = false;
+
+        			
+        			var encry_share = point.encrypt(pk_encrypt_receiver);
+        			var sig  = encry_share.sign(SECRET_KEY_SIGN,ELGAMAL_PARAMS);
+        			var signed_encry_share = new thresholdalgs.SignedEncryptedShare(sig, encry_share, TRUSTEES[i].id);
+
+        			if (sig.verify(encry_share.get_json_string(),pk_signer,ELGAMAL_PARAMS)) {
+        				shares.push(signed_encry_share);
+        			} else {
+        				fatalerror("Error during share computation");
+        				return;
+        			}
+        	}
+
+          if (shares.length == n) {
+            var encry_shares_text = '';
+            var dict = {};
+
+            for (var i = 0; i < n; i++) {
+            	dict[String(i)] = shares[i].toJSONObject();
+            }
+
+            return JSON.stringify(dict);
+			
+          }       
+      }
+    
+    function determine_stage(){
+    	if(!TRUSTEE.communication_keys || !TRUSTEE.public_key_commit_hash)
+    		return 0;
+    	
+    	for(var i=0;i<TRUSTEES.length;i++){
+    		  if(!TRUSTEES[i].communication_keys || !TRUSTEES[i].public_key_commit_hash)
+    				return 1;	  
+    	}
+    	
+    	if(!TRUSTEE.added_encrypted_shares || !TRUSTEE.public_key_commit || !TRUSTEE.public_key_threshold)
+    		return 2;
+    	
+    	for(var i=0;i<TRUSTEES.length;i++){
+  		  if(!TRUSTEES[i].added_encrypted_shares || !TRUSTEES[i].public_key_commit || !TRUSTEES[i].public_key_threshold)
+  				return 3;
+  		}
+    	
+    	if(!TRUSTEE.pok || !TRUSTEE.public_key)
+    		return 4;
+    	
+    	return 5;
+    }
+    
 
     function generate_keypair() {
-      try {
-        SECRET_KEY_ENC = ELGAMAL_PARAMS.generate();
-        SECRET_KEY_SIGN = ELGAMAL_PARAMS.generate();
-      } catch (e) {
-        alert(e);
-      }
-
-      setup_public_key_and_proof();
-    }
-
-    function setup_public_key_and_proof() {
+      SECRET_KEY_ENC = ELGAMAL_PARAMS.generate();
+      SECRET_KEY_SIGN = ELGAMAL_PARAMS.generate();
+     
+     
       // Generate proof of secret key
       PROOF_ENC = SECRET_KEY_ENC.proveKnowledge(ElGamal.fiatshamir_dlog_challenge_generator);
       PUBLIC_KEY_ENC = SECRET_KEY_ENC.pk;
@@ -57,9 +437,7 @@
 
       var pk_val_enc = jQuery.toJSON({'pok': PROOF_ENC, 'public_key': PUBLIC_KEY_ENC});
       var pk_val_sign = jQuery.toJSON({'pok': PROOF_SIGN, 'public_key': PUBLIC_KEY_SIGN});
-      $('#pk_textarea_enc').val(pk_val_enc);
-      $('#pk_textarea_sign').val(pk_val_sign);
-
+    
       var blob = new Blob(
         ['{"encryption":' + jQuery.toJSON(SECRET_KEY_ENC) + ', "signing": ' + jQuery.toJSON(SECRET_KEY_SIGN) + '}'],
         {type: 'application/json'}
@@ -69,43 +447,120 @@
 
       $('#pk_hash').html(b64_sha256(fullkey));
 
-      show_sk();
+      if(SECRET_STORAGE_DOWNLOAD){
+      	$('#sk_download').show();
+      	$('#sk_link').show();
+      	$('#pk_submit').hide();
+      } else {
+    	$('#sk_download').show();
+    	$('#sk_link').hide();
+        $('#pk_submit').show();
+      }
     }
-
-    function show_sk() {
-      $('#sk_download').show();
-      $('#pk_submit').hide();
     
+    function stage0_upload_keys(){
+    	
+    	var pk_val_enc = jQuery.toJSON({'pok': PROOF_ENC, 'public_key': PUBLIC_KEY_ENC});
+        var pk_val_sign = jQuery.toJSON({'pok': PROOF_SIGN, 'public_key': PUBLIC_KEY_SIGN});
+    	
+        
+    	$.post('{% url 'helios.views.trustee_threshold_uploadkeys' election.uuid trustee.uuid %}', 
+    			$.param({storagespace:STORAGE,
+    				public_key_commit_hash: HCOMMIT,
+    				public_key_json_enc: pk_val_enc,
+    				public_key_json_sign: pk_val_sign
+    			}), 
+    			function(result) {
+    		start();
+          },"text").fail(function(){ window.console.log("Upload failed"); });
+   	
     }
 
-    function download_sk() {
-      var blob = new Blob(
-        ['{"encryption":' + jQuery.toJSON(SECRET_KEY_ENC) + ', "signing": ' + jQuery.toJSON(SECRET_KEY_SIGN) + '}'],
-        {type: 'application/json'}
-      );
+    function stage0_download_sk() {
+      var blob = new Blob([SECRET_STORAGE],{type: 'application/json'})
       var url = URL.createObjectURL(blob);
 
-      saveAs(blob, 'communication_keys.json');
+      saveAs(blob, 'secret_key.json');
       $('#pk_submit').show();
+    }
+    
+    function fatalerror(msg){
+    	$('#stage_e').show();
+    	$('#stage_0').hide();
+    	$('#stage_1').hide();
+    	$('#stage_2').hide();
+    	$('#stage_3').hide();
+    	$('#stage_4').hide();
+    	$('#stage_5').hide();
+    	
+    	$('#errormsg').html(msg);
     }
 
   </script>
 
-  <div class="row">
-    <div class="large-12 columns">
-      <h2>{{election.name}}&mdash;Key Generator for {{trustee.name}}</h2>
 
-      <p>
+<div class="row">
+    <div class="large-12 columns">
+      <h2>{{election.name}}&mdash;Trustee Key Ceremony for {{trustee.name}}</h2>
+
+        <p>
+          This is your trustee homepage. As a trustee, you are responsible for decrypting the result of the election when all votes have been cast. This election uses threshold encryption, which means that you will have to participate in a key ceremony. During this ceremony, you (and all other trustees) will receive part of the key that will be used to encrypt the ballots.
+        </p>
+
+        <p>
+            The ceremony consists of three steps:
+
+            <ol>
+              <li>Setup your key</li>
+              <li>Generate and upload encrypted shares for the other trustees.</li>
+              <li>Decrypt the shares of the other trustees and calculate your key pair.</li>
+            </ol>
+          </p>
+          
+          
+  <div id="stage_s" style="display:none;">
+                  <div class="row">
+                    <div class="large-3 columns">
+                      <label for="sk_upload" class="right inline">Secret Key</label>
+                    </div>
+                    <div class="large-9 columns">
+                      <input type="file" name="sk_upload" class="sk_upload" data-output="sk_textarea" />
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="large-9 large-offset-3 columns">
+                      <textarea id="sk_textarea" style="height: 100px;" disabled></textarea>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="large-9 large-offset-3 columns">
+                      <button onclick="storage_key_upload(); return false;">Use existing key</button>
+                      <button id="stage_s_fresh" onclick="storage_key_generate(); return false;">Use a fresh key</button>
+                    </div>
+                  </div>
+                  
+                  
+        
+   		
+   		
+  </div>
+
+  <div id="stage_0" style="display:none;">
+  <h3>Step 1 - Generate and upload key pair</h3>
+    <p>
         As a trustee, it's time to set up your key pairs for this election.
       </p>
 
-      <div data-alert class="alert-box info" id="waiting_message">
-        Please wait for the generator to load...
+      <div id="stage_0_waiting" style="display:none;">
+        <p>Please wait...</p>
+        <p class="text-center">
+                      <img src="/static/helios/loading.gif" />
+                    </p>
       </div>
 
-      <div id="sk_download">
-        <h3>Generated Key Pairs</h3>
-
+      <div id="stage_0_download" style="display:none;">
         <p>
           Your key pairs have been generated and you can now save the secret keys. <b>It is important that you do not lose these files, because you will need them to complete the key ceremony.</b>
         </p>
@@ -114,17 +569,78 @@
           The fingerprint of your public keys is <tt id="pk_hash"></tt>. You may want to save these to confirm that your public key was properly stored by the server.
         </p>
 
-        <button id="sk_link" onclick="download_sk(); $('#pk_link').show(); $('#sk_link').addClass('secondary'); return false;">Save Secret Keys</button>
-
-        <form method="post">
-          <textarea id="pk_textarea_enc" name="public_key_json_enc" style="height: 100px; display: none;"></textarea>
-          <textarea id="pk_textarea_sign" name="public_key_json_sign" style="height: 100px; display: none;"></textarea>
-          <input class="button" id="pk_submit" type="submit" value="Upload Public Keys &raquo;">
-        </form>
-
+        <button id="sk_link" onclick="stage0_download_sk(); return false;">Save Secret Keys</button>
+          
+        <button onclick="stage0_upload_keys(); return false;" id="pk_submit" type="submit">Upload Public Keys &raquo;</button>
+        
 
         <div id="applet_div"></div>
       </div>
-    </div>
+    </div> <!-- stage_0 -->
+  
+  <div id="stage_1" style="display:none;">
+  <h3>Step 2 - Compute and upload shares</h3>
+     <div data-alert class="alert-box info">
+  	You have to wait for the other trustees to upload their data. <a href="javascript:start();">Check again</a>
+  	 </div>
   </div>
+  
+  <div id="stage_2" style="display:none;">
+  	<h3>Step 2 - Compute and upload shares</h3>
+  	
+  	<div id="stage_2_waiting" style="display:none;">
+  	 <p>Computing shares</p>
+  	 <p class="text-center">
+                      <img src="/static/helios/loading.gif" />
+                    </p>
+    </div>
+  	
+  	<div id="stage_2_upload" style="display:none;">
+  		<button onclick="stage2_upload(); return false;" id="pk_submit" type="submit">Upload Shares &raquo;</button>
+  	</div>
+  </div>
+  
+   <div id="stage_3" style="display:none;">
+   <h3>Step 3 - Compute and upload key</h3>
+  	<div data-alert class="alert-box info">
+  	You have to wait for the other trustees to upload their shares. <a href="javascript:start();">Check again</a>
+  	 </div>
+  </div>
+  
+   <div id="stage_4"  style="display:none;">
+    <h3>Step 3 - Compute and upload key</h3>
+  	<div id="stage_4_waiting"  style="display:none;">
+  	 <p>Computing key</p>
+  	 <p class="text-center">
+                      <img src="/static/helios/loading.gif" />
+                    </p>
+    </div>
+  	
+  	
+  	<div id="stage_4_upload"  style="display:none;">
+  		<button onclick="stage4_upload(); return false;" id="pk_submit" type="submit">Upload data &raquo;</button>
+  	</div>
+  </div>
+  
+  <div id="stage_5" style="display:none;">
+  	You have completed the key ceremony. <a href="{% url 'helios.views.trustee_home' election.uuid trustee.uuid %}">Return to trustee dashboard.</a>  	
+  </div>
+  
+   <div id="stage_e" show="none">
+  	<div data-alert class="alert-box error">
+  	<div id="errormsg"></div> <a href="javascript:start();">Try again</a>
+  	</div>
+  </div>
+  
+  <div id="trustee_overview">
+  	<h2>Trustee overview</h2>
+  	
+  	<div id="trustees"></div>
+  </div>
+  
+ 
+  
+  </div></div>
+  
+  
 {% endblock %}

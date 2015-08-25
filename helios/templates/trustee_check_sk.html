@@ -29,12 +29,11 @@
       $('#processing').show();
 
       try {
-        var secret_key = ElGamal.SecretKey.fromJSONObject(jQuery.secureEvalJSON(sk_value));
+        var secret_key = get_secret_key();
 
         var pk_hash = b64_sha256(jQuery.toJSON(secret_key.pk));
         var key_ok_p = (pk_hash == PK_HASH);
       } catch (e) {
-        debugger;
         var key_ok_p = false;
       }
 
@@ -47,6 +46,24 @@
       }
       $('#result').show();
     }
+    
+
+    function get_secret_key() {
+    	{% if election.use_threshold %}	
+    	var storage = $('#storage').val();
+    	var key = $('#secret_key').val().trim();
+    	var data = storage_decrypt(key, storage);
+    	
+    	window.console.log(data);
+    	
+    	return ElGamal.SecretKey.fromJSONObject(jQuery.parseJSON(data).secret);
+    	 
+    	{% else %}
+          return ElGamal.SecretKey.fromJSONObject($.secureEvalJSON($('#secret_key').val()));
+        {% endif %}
+    }
+    
+   
 
     function handleFileSelect(e) {
       var file = e.target.files[0];
@@ -100,6 +117,7 @@
           <div class="row">
             <div class="large-9 large-offset-3 columns">
               <textarea id="secret_key" style="height: 100px;" disabled></textarea>
+              <textarea id="storage" style="display:none;">{{trustee.storagespace}}</textarea>
             </div>
           </div>
 

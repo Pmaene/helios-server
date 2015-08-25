@@ -261,8 +261,8 @@ SHIBBOLETH_LAST_NAME = get_from_env('SHIBBOLETH_LAST_NAME', 'Shib_Person_surname
 SHIBBOLETH_EMAIL = get_from_env('SHIBBOLETH_EMAIL', 'Shib_Person_mail')
 
 # Email
-EMAIL_HOST = get_from_env('EMAIL_HOST', 'localhost')
-EMAIL_PORT = int(get_from_env('EMAIL_PORT', '2525'))
+EMAIL_HOST = get_from_env('EMAIL_HOST', 'smtp.kuleuven.be')
+EMAIL_PORT = int(get_from_env('EMAIL_PORT', '25'))
 EMAIL_HOST_USER = get_from_env('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = get_from_env('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = (get_from_env('EMAIL_USE_TLS', '0') == '1')

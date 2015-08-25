@@ -52,7 +52,9 @@ from models import *
 import forms
 import signals
 
-from helios.constants import p, g, q, ground_1, ground_2
+from helios.constants import p, g, q
+
+from crypto import thresholdalgs as thresholdalgs
 
 # parameters for everything
 ELGAMAL_PARAMS = elgamal.Cryptosystem()
@@ -539,24 +541,22 @@ def trustees_freeze(request, election):
             scheme = ThresholdScheme()
             scheme.election = election
             scheme.n = len(trustees)
-            scheme.ground_1 = ground_1
-            scheme.ground_2 = ground_2
             scheme.k = form.cleaned_data['k']
             scheme.save()
             election.frozen_trustee_list = True
             election.save()
 
             if election.trustees_added_encrypted_shares():
-                if election.has_helios_trustee():
-                    helios_trustee = election.get_helios_trustee()
-                    helios_trustee = election.get_helios_trustee()
-                    helios_trustee.add_encrypted_shares(election)
-                    helios_trustee.save()
-
-                    if helios_trustee.public_key == None and helios_trustee.secret_key == None:
-                        helios_trustee.calculate_key(election)
-                        helios_trustee.save()
-
+#                if election.has_helios_trustee():
+#                    helios_trustee = election.get_helios_trustee()
+#                    helios_trustee = election.get_helios_trustee()
+#                    helios_trustee.add_encrypted_shares(election)
+#                    helios_trustee.save()
+#
+#                    if helios_trustee.public_key == None and helios_trustee.secret_key == None:
+#                        helios_trustee.calculate_key(election)
+#                        helios_trustee.save()
+#
                 election.encrypted_shares_uploaded = True
                 election.save()
 
@@ -649,83 +649,46 @@ Helios
     logging.info("URL %s " % url)
     return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(trustees_list_view, args=[election.uuid]))
 
-
 @trustee_check
 def trustee_home(request, election, trustee):
-    if not election.use_threshold or not trustee.key:
+    if not election.use_threshold:
         return render_template(request, 'trustee_home', {'election': election, 'trustee': trustee})
+    return render_template(request, 'trustee_threshold_home', {'election': election, 'trustee': trustee})
 
+
+@trustee_check
+@return_json
+def trustees_fullinfo(request,election,trustee):
     scheme = None
     if election.frozen_trustee_list:
         scheme = election.get_scheme()
-
-    signer_id = trustee.key.id
+    
     trustees = Trustee.objects.filter(election=election).order_by('id')
 
     scheme_params_json = None
     if (scheme):
         SCHEME_PARAMS_LD_OBJECT = datatypes.LDObject.instantiate(scheme, datatype='legacy/ThresholdScheme')
-        scheme_params_json = utils.to_json(SCHEME_PARAMS_LD_OBJECT.toJSONDict())
-
-    if not election.trustees_added_communication_keys():
-        return render_template(request, 'trustee_home', {'election': election, 'trustee': trustee, 'scheme_params_json': scheme_params_json})
+        scheme_params_json = SCHEME_PARAMS_LD_OBJECT.toJSONDict()
 
     # create dictionary with all public_keys
-    eg_params_json = utils.to_json(ELGAMAL_PARAMS_LD_OBJECT.toJSONDict())
-    pk_encrypt_dict = {}
-    pk_signing_dict = {}
-    name_dict = {}
-    id_dict = {}
-    trustee_ids_dict = {}
-    email_dict = {}
-    pok_encrypt_dict = {}
-    pok_signing_dict = {}
-    pk_encrypt_hash_dict = {}
-    pk_signing_hash_dict = {}
-    for i in range(len(trustees)):
-        key = Key.objects.get(id=trustees[i].key_id)
-        id_dict[str(i)] = key.id
-        corresponding_trustee = Trustee.objects.filter(key=key)[0]
-        trustee_ids_dict[str(i)] = corresponding_trustee.id
-        name_dict[str(i)] = key.name
-        email_dict[str(i)] = key.email
-        pok_encrypt_dict[str(i)] = key.pok_encrypt
-        pok_signing_dict[str(i)] = key.pok_signing
-        pk_encrypt_hash_dict[str(i)] = key.public_key_encrypt_hash
-        pk_signing_hash_dict[str(i)] = key.public_key_signing_hash
-        pk_encrypt_dict[str(i)] = key.public_key_encrypt
-        pk_signing_dict[str(i)] = key.public_key_signing
+    eg_params = ELGAMAL_PARAMS_LD_OBJECT.toJSONDict()
 
     # pass encrypted shares if there are any
-    encry_shares = SignedEncryptedShare.objects.filter(election_id=election.id).filter(receiver_id=trustee.key.id).order_by('trustee_signer_id')
     encry_shares_dict = {}
-    if(encry_shares):
-        for i in range(len(encry_shares)):
-            item = encry_shares[i]
-            encry_share = thresholdalgs.SignedEncryptedShare.from_dict(utils.from_json(item.share))
 
-            encry_shares_dict[str(i)] = utils.to_json(encry_share.to_dict())
+    encry_shares = SignedEncryptedShare.objects.filter(election_id=election.id).filter(trustee_receiver_id=trustee.id).order_by('trustee_signer_id')
+    
 
-    return render_template(request, 'trustee_home', {
+    return {
         "election_id": election.id,
-        "trustee": trustee,
-        "signer_id": signer_id,
-        "election": election,
-        "trustees": trustees,
-        "trustee_ids_dict": trustee_ids_dict,
-        "scheme_params_json": scheme_params_json,
-        "id_dict": id_dict,
-        "name_dict": utils.to_json(name_dict),
-        "email_dict": utils.to_json(email_dict),
-        "pok_encrypt_dict": utils.to_json(pok_encrypt_dict),
-        "pok_signing_dict": utils.to_json(pok_signing_dict),
-        "pk_encrypt_hash_dict": utils.to_json(pk_encrypt_hash_dict),
-        "pk_signing_hash_dict": utils.to_json(pk_signing_hash_dict),
-        "pk_encrypt_dict": utils.to_json(pk_encrypt_dict),
-        "pk_signing_dict": utils.to_json(pk_signing_dict),
-        "eg_params_json": eg_params_json,
-        "encry_shares_dict": encry_shares_dict
-    })
+        "trustee": trustee.toJSONDict(),
+        "storagespace": trustee.storagespace,
+        "election": election.toJSONDict(),
+        "trustees": [t.toJSONDict() for t in trustees],
+        "scheme_params": scheme_params_json,
+        "eg_params": eg_params,
+        "encry_shares": [e.toJSONDict() for e in encry_shares]
+    };
 
 
 @trustee_check
@@ -738,14 +701,8 @@ def trustee_keygenerator(request, election, trustee):
     return render_template(request, "trustee_keygenerator", {'eg_params_json': eg_params_json, 'election': election, 'trustee': trustee})
 
 @trustee_check
-def trustee_keygenerator_threshold(request, election, trustee):
-    """
-    a key generator for threshold encryption with the current params
-    """
-    if request.method == "POST":
-        key = Key()
-        key.name = trustee.name
-        key.email = trustee.email
+def trustee_threshold_uploadkeys(request, election, trustee):
+        comm = thresholdalgs.CommunicationKeys();
 
         # get the public key and the hash, and add ii
         public_key_and_proof_enc = utils.from_json(request.POST['public_key_json_enc'])
@@ -756,8 +713,8 @@ def trustee_keygenerator_threshold(request, election, trustee):
         if not public_key_enc.verify_sk_proof(pok_enc, algs.DLog_challenge_generator):
             raise Exception('Bad proof for public encryption key')
 
-        key.public_key_encrypt = utils.to_json(public_key_enc.to_dict())
-        key.pok_encrypt = utils.to_json(pok_enc.to_dict())
+        comm.public_key_encrypt = public_key_enc
+        comm.pok_encrypt = pok_enc
 
         public_key_and_proof_sign = utils.from_json(request.POST['public_key_json_sign'])
         public_key_sign = algs.EGPublicKey.fromJSONDict(public_key_and_proof_sign['public_key'])
@@ -767,15 +724,15 @@ def trustee_keygenerator_threshold(request, election, trustee):
         if not public_key_sign.verify_sk_proof(pok_sign, algs.DLog_challenge_generator):
             raise Exception('Bad proof for public signing key')
 
-        key.public_key_signing = utils.to_json(public_key_sign.to_dict())
-        key.pok_signing = utils.to_json(pok_sign.to_dict())
+        comm.public_key_signing = public_key_sign
+        comm.pok_signing = pok_sign        
 
-        key.public_key_encrypt_hash = cryptoutils.hash_b64('{"encryption":' + key.public_key_encrypt   + ', "signing": ' + key.public_key_signing + '}')
+#        key.public_key_encrypt_hash = cryptoutils.hash_b64('{"encryption":' + key.public_key_encrypt   + ', "signing": ' + key.public_key_signing + '}')
 
-        key.save()
-
-        # assign the key to the trustee
-        trustee.key = key
+        trustee.communication_keys = comm
+        trustee.public_key_commit_hash = request.POST['public_key_commit_hash']
+        trustee.storagespace = request.POST['storagespace']
+     
         trustee.save()
 
         # send a note to admin
@@ -806,59 +763,63 @@ Helios""" % (email_trustee.name, url)
 
                     tasks.single_trustee_email.delay(email_trustee.id, "%s - Communication Keys Uploaded" % election.name, body)
 
-        return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(trustee_home, args=[election.uuid, trustee.uuid]))
-
-    eg_params_json = utils.to_json(ELGAMAL_PARAMS_LD_OBJECT.toJSONDict())
-
-    return render_template(request, "trustee_keygenerator_threshold", {'eg_params_json': eg_params_json, 'election': election, 'trustee': trustee})
+        return SUCCESS
 
 
 @trustee_check
-def trustee_upload_encrypted_shares(request, election, trustee):
-    signer_key = trustee.key
-    signer_id = signer_key.id
+def trustee_threshold_keygenerator(request, election, trustee):
+
+    eg_params_json = utils.to_json(ELGAMAL_PARAMS_LD_OBJECT.toJSONDict())
+
+    if election.frozen_trustee_list:
+        scheme = election.get_scheme()
+
+    scheme_params_json = None
+    if (scheme):
+        SCHEME_PARAMS_LD_OBJECT = datatypes.LDObject.instantiate(scheme, datatype='legacy/ThresholdScheme')
+        scheme_params_json = utils.to_json(SCHEME_PARAMS_LD_OBJECT.toJSONDict())
+
+    return render_template(request, "trustee_threshold_keygenerator", {'eg_params_json': eg_params_json, 'election': election, 'trustee': trustee, 'scheme_params_json' : scheme_params_json})
+
+
+@trustee_check
+def trustee_threshold_upload_encrypted_shares(request, election, trustee):
+    if(trustee.added_encrypted_shares == True):
+	raise Exception("Encrypted shares already uploaded")
+
     trustees = Trustee.objects.filter(election=election).order_by('id')
     scheme = ThresholdScheme.objects.get(election=election)
-    signer_key = Key.objects.get(id=signer_id)
-    signer_trustee = Trustee.objects.filter(key=signer_key)[0]
     n = scheme.n
 
-    encry_shares_dict = utils.from_json(request.POST['encry_shares'])
+    encry_shares_dict = utils.from_json(request.POST['shares'])
     encry_shares = []
     for i in range(n):
         dict = encry_shares_dict[str(i)]
-        item = thresholdalgs.SignedEncryptedShare.from_dict(dict)
+        item = thresholdalgs.Share.from_dict(dict)
         encry_shares.append(item)
 
     if len(encry_shares) == n:
         for i in range(n):
-            receiver_id = trustees[i].key.id
-            receiver = trustees[i].key.name
             encry_share_model = SignedEncryptedShare()
-            encry_share_model.election_id = election.id
+            encry_share_model.election = election
             encry_share_model.share = utils.to_json(encry_shares[i].to_dict())
-            encry_share_model.signer = signer_key.name
-            encry_share_model.signer_id = signer_id
-            encry_share_model.receiver = receiver
-            encry_share_model.receiver_id = receiver_id
             encry_share_model.trustee_signer_id = trustee.id
-            encry_share_model.trustee_receiver_id = trustees[i].id
+            encry_share_model.trustee_receiver_id = encry_shares_dict[str(i)]['receiver']
             encry_share_model.save()
 
-    if (len(SignedEncryptedShare.objects.filter(election_id=election.id).filter(signer_id=signer_id)) == n):
-        trustee.added_encrypted_shares = True
-        trustee.save()
+    trustee.public_key_commit = request.POST['public_key_commit']
+    trustee.public_key_threshold = algs.EGPublicKey.fromJSONDict(utils.from_json(request.POST['public_key']))
+    trustee.storagespace = request.POST['storagespace']
+
+
+    # verify the hash
+    if(utils.hash_b64(trustee.public_key_commit) != trustee.public_key_commit_hash):
+	raise Exception("Hash invallid") 
+
+    trustee.added_encrypted_shares = True
+    trustee.save()
 
     if election.trustees_added_encrypted_shares():
-        if election.has_helios_trustee():
-            helios_trustee = election.get_helios_trustee()
-            helios_trustee.add_encrypted_shares(election)
-            helios_trustee.save()
-
-            if helios_trustee.public_key == None and helios_trustee.secret_key == None:
-                helios_trustee.calculate_key(election)
-                helios_trustee.save()
-
         election.encrypted_shares_uploaded = True
         election.save()
 
@@ -866,7 +827,7 @@ def trustee_upload_encrypted_shares(request, election, trustee):
     body = """Trustee %s <%s> uploaded his/her encrypted shares.
 
 --
-Helios""" % (signer_trustee.name, signer_trustee.email)
+Helios""" % (trustee.name, trustee.email)
 
     tasks.admin_email.delay(election.id, "%s - Encrypted Shares Uploaded" % election.name, body)
 
@@ -895,7 +856,74 @@ Helios""" % (trustee.name, url)
 
 @trustee_check
 def trustee_check_sk(request, election, trustee):
-    return render_template(request, 'trustee_check_sk', {'election': election, 'trustee': trustee})
+    eg_params_json = utils.to_json(ELGAMAL_PARAMS_LD_OBJECT.toJSONDict())
+    return render_template(request, 'trustee_check_sk', {'eg_params_json': eg_params_json, 'election': election, 'trustee': trustee})
+
+@trustee_check
+def trustee_threshold_upload_pk(request,election,trustee):
+    if request.method == "POST":
+        # get the pok (for s)
+        trustee.pok = algs.DLogProof.fromJSONDict(utils.from_json(request.POST['pok']))
+        trustee.storagespace = request.POST['storagespace']
+
+	# multiply all commitments
+	trustees = Trustee.objects.filter(election=election).order_by('id')
+
+	factors = 1
+	for t in trustees:
+		F = thresholdalgs.CommitmentE.from_dict(t.public_key_commit)
+		factors = (factors * F.evaluate(trustee.threshold_id,ELGAMAL_PARAMS)) % ELGAMAL_PARAMS.p
+
+	pk = elgamal.PublicKey()
+	pk.y = factors
+	pk.g = ELGAMAL_PARAMS.g
+	pk.p = ELGAMAL_PARAMS.p
+	pk.q = ELGAMAL_PARAMS.q
+
+
+        # verify the pok
+        if not pk.verify_sk_proof(trustee.pok, algs.DLog_challenge_generator):
+            raise Exception('Bad proof for this public key '+str(pk.y))
+
+	trustee.public_key = pk
+        trustee.public_key_hash = utils.hash_b64(utils.to_json(pk.to_dict()))
+
+        trustee.save()
+
+        # send a note to admin
+        body = """Trustee %s <%s> uploaded a public key.
+
+--
+Helios""" % (trustee.name, trustee.email)
+
+        tasks.admin_email.delay(election.id, "%s - Trustee Uploaded Public Key" % election.name, body)
+
+        if election.trustees_added_public_keys():
+            url = settings.SECURE_URL_HOST + reverse(one_election_admin, args=[election.uuid])
+
+            body = """All trustees have uploaded their public keys."""
+
+            if election.issues_before_freeze:
+                body += """
+However, you have to solve some issues before the ballot can be frozen.
+"""
+            else:
+                body += """
+You can now freeze the ballot.
+"""
+
+            body += """
+The election dashboard can be found at:
+
+    %s
+
+--
+Helios""" % url
+
+            tasks.admin_email.delay(election.id, "%s - Trustees Uploaded Public Keys" % election.name, body)
+
+    return SUCCESS
+
 
 
 @trustee_check

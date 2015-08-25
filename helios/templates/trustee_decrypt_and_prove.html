@@ -43,8 +43,21 @@
     }
 
     function get_secret_key() {
-      return ElGamal.SecretKey.fromJSONObject($.secureEvalJSON($('#sk_textarea').val()));
+    	{% if election.use_threshold %}	
+    	var storage = $('#storage').val();
+    	var key = $('#secret_key').val().trim();
+    	var data = storage_decrypt(key, storage);
+    	
+    	window.console.log(data);
+    	
+    	return ElGamal.SecretKey.fromJSONObject(jQuery.parseJSON(data).secret);
+    	 
+    	{% else %}
+          return ElGamal.SecretKey.fromJSONObject($.secureEvalJSON($('#secret_key').val()));
+        {% endif %}
     }
+    
+    
 
     function do_tally() {
       $('#sk_section').hide();
@@ -183,7 +196,8 @@
 
           <div class="row">
             <div class="large-9 large-offset-3 columns">
-              <textarea id="sk_textarea" style="height: 100px;" disabled></textarea>
+              <textarea id="secret_key" style="height: 100px;" disabled></textarea>
+              <textarea id="storage" style="display:none;">{{trustee.storagespace}}</textarea>
             </div>
           </div>
 

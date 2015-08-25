@@ -772,33 +772,3 @@ def DLog_challenge_generator(commitment):
     string_to_hash = str(commitment)
     return int(hashlib.sha1(string_to_hash).hexdigest(), 16)
 
-
-class CommitmentE(object):
-    FIELDS = ['s', 't', 'ground_1', 'ground_2', 'value']
-
-    def __init__(self):
-        self.s = None
-        self.t = None
-        self.ground_1 = None
-        self.ground_2 = None
-        self.value = None
-
-    def toJSONDict(self):
-        value = {
-            's': self.s,
-            't': self.t,
-            'ground_1': self.ground_1,
-            'ground_2': self.ground_2,
-            'value': self.value
-        }
-
-        return value
-
-    def generate(self, s, t, ground_1, ground_2, q):
-        self.t = t
-        self.s = s
-        self.q = q
-        self.ground_1 = ground_1
-        self.ground_2 = ground_2
-        self.value = (pow(self.ground_1, self.s, self.q)
-                      * pow(self.ground_2, self.t, self.q)) % self.q

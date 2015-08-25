@@ -10,16 +10,15 @@ thresholdalgs.encode_string_to_decimal = function (s) {
 }
 
 thresholdalgs.Polynomial = Class.extend({
-    init: function (c0, scheme, EG) {
+    init: function (c0, k, EG) {
         var p = EG.p;
         var q = EG.q;
         this.coeff = [];
         this.coeff.push(c0);
         this.EG = EG;
-        this.scheme = scheme;
-        this.grade = this.scheme.k - 1;
+        this.degree = k - 1;
 
-        for (var i = 0; i < this.grade; i++) {
+        for (var i = 0; i < this.degree; i++) {
             this.coeff.push(Random.getRandomInteger(q));
         }
     },
@@ -30,10 +29,9 @@ thresholdalgs.Polynomial = Class.extend({
     },
 
     create_points: function (ids) {
-        n = this.scheme.n;
         var points = [];
-        for (var i = 0; i < n; i++) {
-            var point = new thresholdalgs.Point(BigInt.fromInt(ids[i]), this.evaluate(ids[i]));
+        for (var i = 0; i < ids.length; i++) {
+            var point = create_point(ids[i]);
             points.push(point);
         }
         return points;
@@ -41,18 +39,46 @@ thresholdalgs.Polynomial = Class.extend({
     },
     evaluate: function (x) {
         var q = this.EG.q;
-        var p = this.EG.p;
         var x = BigInt.fromInt(x);
         var value = BigInt.ZERO;
-        for (i = 0; i < this.grade + 1; i++) {
+        for (i = 0; i < this.degree + 1; i++) {
             var pow = BigInt.fromInt(i);
             value = (value.add(this.coeff[i].multiply(x.modPow(pow, q))));
             value = value.mod(q);
         }
         return value;
 
+    },
+    
+    create_point: function (id) {
+    	return new thresholdalgs.Point(BigInt.fromInt(id), this.evaluate(id));
+    },
+    
+    toJSONObject: function () {
+        var coefflist = [];
+        for (var i = 0; i < this.coeff.length; i++) {
+        	coefflist[i] = this.coeff[i].toJSONObject();
+        }
+        return {
+            coeffs: coefflist,
+            degree: this.degree,
+        };
     }
 });
+
+thresholdalgs.Polynomial.fromJSONObject = function (d,EG) {
+    var degree = d.degree;
+   
+    coefflist = [];
+    for(var i = 0; i < d.coeffs.length; i++){
+    	coefflist.push(BigInt.fromJSONObject(d.coeffs[i]));
+    }
+    
+   
+    var poly = new thresholdalgs.Polynomial(0, degree+1, EG);
+    poly.coeff = coefflist;
+    return poly;
+};
 
 thresholdalgs.Point = Class.extend({
     init: function (x, y) {
@@ -101,6 +127,16 @@ thresholdalgs.EncryptedPoint = Class.extend({
         var y_val = secret_key.decrypt(this.ciph_y).m;
         return new thresholdalgs.Point(x_val, y_val);
     },
+    
+    get_json_string: function () {
+        return JSON.stringify(this.toJSONObject());
+    },
+    
+    sign: function (secret_key, EG) {
+        var sig = new thresholdalgs.Signature(null, null);
+        sig.generate(this.get_json_string(), secret_key, EG.p, EG.q, EG.g);
+        return sig;
+    },
 
     toJSONObject: function () {
         return {
@@ -116,17 +152,16 @@ thresholdalgs.EncryptedPoint.fromJSONObject = function (d) {
 };
 
 thresholdalgs.Share = Class.extend({
-    init: function (point_s, point_t, Ei) {
+    init: function (point_s, Ei) {
         this.point_s = point_s;
-        this.point_t = point_t;
         this.Ei = Ei;
     },
 
     add: function (addedshare, p, q, g, scheme) {
-        if (this.point_s.x_value.equals(addedshare.point_s.x_value) && this.point_s.x_value.equals(addedshare.point_t.x_value) && this.point_s.x_value.equals(this.point_t.x_value)) {
+        if (this.point_s.x_value.equals(addedshare.point_s.x_value)) {
             x = this.point_s.x_value;
             var new_point_s = new thresholdalgs.Point(x, (this.point_s.y_value.add(addedshare.point_s.y_value)).mod(q));
-            var new_point_t = new thresholdalgs.Point(x, (this.point_t.y_value.add(addedshare.point_t.y_value)).mod(q));
+            
             new_Ei = [];
             var overall_succes = true;
             for (var i = 0; i < this.Ei.length; i++) {
@@ -138,7 +173,6 @@ thresholdalgs.Share = Class.extend({
                 new_Ei.push(Ei_now);
             }
             this.point_s = new_point_s;
-            this.point_t = new_point_t;
             this.Ei = new_Ei;
 
             if (this.verify_share(scheme, p, q, g)) {
@@ -157,8 +191,7 @@ thresholdalgs.Share = Class.extend({
 
     encrypt: function (public_key) {
         var encry_point_s = this.point_s.encrypt(public_key);
-        var encry_point_t = this.point_t.encrypt(public_key);
-        var encry_share = new thresholdalgs.EncryptedShare(encry_point_s, encry_point_t, this.Ei);
+        var encry_share = new thresholdalgs.EncryptedShare(encry_point_s, this.Ei);
         return encry_share;
     },
 
@@ -176,7 +209,7 @@ thresholdalgs.Share = Class.extend({
         var k = scheme.k;
         var n = scheme.n;
         var E = new thresholdalgs.CommitmentE(null, null, null)
-        E.generate(this.point_s.y_value, this.point_t.y_value, scheme.ground_1, scheme.ground_2, p, q, g);
+        E.generate(this.point_s.y_value, p, q, g);
         var point_number = this.point_s.x_value;
         var result = BigInt.ONE;
         if (this.Ei.length != k)
@@ -202,14 +235,13 @@ thresholdalgs.Share = Class.extend({
         return {
             Ei: com_dict,
             point_s: this.point_s.toJSONObject(),
-            point_t: this.point_t.toJSONObject()
         };
     }
 });
 
 thresholdalgs.Share.fromJSONObject = function (d) {
     var point_s = Point.fromJSONObject(d.point_s);
-    var point_t = Point.fromJSONObject(d.point_t);
+   
     var Ei_dict = d.Ei;
     var Ei = [];
     var i = 0;
@@ -219,58 +251,16 @@ thresholdalgs.Share.fromJSONObject = function (d) {
         Ei.push(com);
         i++;
     }
-    var share = new thresholdalgs.Share(point_s, point_t, Ei);
+    var share = new thresholdalgs.Share(point_s, Ei);
     return share;
 };
 
-thresholdalgs.EncryptedShare = Class.extend({
-    init: function (encry_point_s, encry_point_t, Ei) {
-        this.encry_point_s = encry_point_s;
-        this.encry_point_t = encry_point_t;
-        this.Ei = Ei;
-    },
-
-    decrypt: function (secret_key) {
-        var point_s = this.encry_point_s.decrypt(secret_key);
-        var point_t = this.encry_point_t.decrypt(secret_key);
-
-        return new thresholdalgs.Share(point_s, point_t, this.Ei);
-    },
-
-    toJSONObject: function () {
-        var com_dict = {};
-        for (var i = 0; i < this.Ei.length; i++) {
-            com_dict[String(i)] = this.Ei[i].toJSONObject();
-        }
-
-        return {
-            'Ei': com_dict,
-            'encry_point_s': this.encry_point_s.toJSONObject(),
-            'encry_point_t': this.encry_point_t.toJSONObject()
-        };
-    }
-});
-
-thresholdalgs.EncryptedShare.fromJSONObject = function (d) {
-    var encry_point_s = thresholdalgs.EncryptedPoint.fromJSONObject(d['encry_point_s']);
-    var encry_point_t = thresholdalgs.EncryptedPoint.fromJSONObject(d['encry_point_t']);
-    var Ei_dict = d['Ei'];
-    var Ei = [];
-    var i = 0;
-    while (String(i) in Ei_dict) {
-        var dict = Ei_dict[String(i)];
-        var com = new thresholdalgs.CommitmentE.fromJSONObject(dict);
-        Ei.push(com);
-        i++;
-    }
-    var encry_share = new thresholdalgs.EncryptedShare(encry_point_s, encry_point_t, Ei);
-    return encry_share;
-};
 
 thresholdalgs.SignedEncryptedShare = Class.extend({
-    init: function (sig, encr_share) {
+    init: function (sig, encr_share, receiver) {
         this.sig = sig;
         this.encr_share = encr_share;
+        this.receiver = receiver;
 
     },
 
@@ -278,62 +268,76 @@ thresholdalgs.SignedEncryptedShare = Class.extend({
 
         return {
             'encr_share': this.encr_share.toJSONObject(),
-            'sig': this.sig.toJSONObject()
+            'sig': this.sig.toJSONObject(),
+            'receiver': this.receiver
         };
     },
 });
 
-thresholdalgs.SignedEncryptedShare.fromJSONObject = function (d) {
-    var encr_share_dict = d['encr_share']
-    var encr_share = thresholdalgs.EncryptedShare.fromJSONObject(encr_share_dict);
+thresholdalgs.SignedEncryptedShare.fromJSONObject = function (d,receiver) {
+    var encr_share = thresholdalgs.EncryptedPoint.fromJSONObject(d['encr_share']);
     var sig = thresholdalgs.Signature.fromJSONObject(d['sig']);
-    var sig_encr_share = new thresholdalgs.SignedEncryptedShare(sig, encr_share);
+    var sig_encr_share = new thresholdalgs.SignedEncryptedShare(sig, encr_share,receiver);
 
     return sig_encr_share;
 };
 
 thresholdalgs.CommitmentE = Class.extend({
-    init: function (ground_1, ground_2, value) {
-        this.ground_1 = ground_1;
-        this.ground_2 = ground_2;
+    init: function (EG, value) {
         this.value = value;
+        this.EG = EG;
     },
 
-    generate: function (s, t, ground_1, ground_2, p, q, g) {
-        var s = s.mod(q)
-        var t = t.mod(q)
-
-        this.ground_1 = ground_1;
-        this.ground_2 = ground_2;
-        this.value = ((this.ground_1.modPow(s, p)).multiply(this.ground_2.modPow(t, p))).mod(p);
-
-        return null;
+    generate: function (poly) {
+    	this.value = [];
+    	for(var i=0;i<poly.coeff.length;i++){
+    		this.value[i] = this.EG.g.modPow(poly.coeff[i], this.EG.p);
+    	}
     },
-
-    add: function (addedcommitment, p, q, g, scheme) {
-        if ((this.ground_1.equals(addedcommitment.ground_1)) && (this.ground_2.equals(addedcommitment.ground_2))) {
-            this.value = (this.value.multiply(addedcommitment.value)).mod(p);
-            return true;
-        } else {
-            return false;
+    
+    gethash : function(){
+    	var valuesjson = [];
+    	for(var i = 0; i < this.value.length; i++){
+    		valuesjson[i] = this.value[i].toJSONObject();
+    	}
+    	return b64_sha256(JSON.stringify(valuesjson));
+    },
+    
+    evaluate: function (x) {
+        var q = this.EG.q;
+        var p = this.EG.p;
+        var x = BigInt.fromInt(x);
+        var ret = this.value[0];
+        for (i = 1; i < this.degree + 1; i++) {
+            var pow = BigInt.fromInt(i);
+            ret = (ret.mul(this.value[i].modPow(x.modPow(pow,q),p)));
+            ret = ret.mod(p);
         }
+        return ret;
+
     },
+    
+    validate: function (x,s) {
+    	return 0 == this.evaluate(x).compareTo(this.EG.g.modPow(s,this.EG.p));
+    },
+    
     toJSONObject: function () {
-        return {
-            'ground_1': this.ground_1.toJSONObject(),
-            'ground_2': this.ground_2.toJSONObject(),
-            'value': this.value.toJSONObject()
-        };
+    	var valuesjson = [];
+    	for(var i = 0; i < this.value.length; i++){
+    		valuesjson[i] = this.value[i].toJSONObject();
+    	}
+    	
+        return valuesjson;
 
     },
 });
 
-thresholdalgs.CommitmentE.fromJSONObject = function (d) {
-    var ground_1 = BigInteger.fromJSONObject(d['ground_1']);
-    var ground_2 = BigInteger.fromJSONObject(d['ground_2']);
-    var value = BigInteger.fromJSONObject(d['value']);
-
-    var com = new thresholdalgs.CommitmentE(ground_1, ground_2, value);
+thresholdalgs.CommitmentE.fromJSONObject = function (d,EG) {
+	var valuelist = [];
+	for(var i = 0; i < d.length; i++){
+    	valuelist.push(BigInt.fromJSONObject(d[i]));
+    }
+    var com = new thresholdalgs.CommitmentE(EG,valuelist);
 
     return com;
 };
@@ -347,9 +351,9 @@ thresholdalgs.Signature = Class.extend({
     generate: function (m, secret_key, p, q, g) {
         while (true) {
             var p_1 = p.add(BigInt.ONE.negate());
-            var hash = b64_sha256(m);
+            var hash = hex_sha256(m);
 
-            var hash_dec = thresholdalgs.encode_string_to_decimal(hash);
+            var hash_dec = new BigInt(hash,16);
 
             var k = Random.random_k_relative_prime_p_1(p);
             var k_inv = k.modInverse(p_1);
@@ -364,11 +368,12 @@ thresholdalgs.Signature = Class.extend({
         }
     },
 
-    verify: function (m, public_key, p, q, g) {
+    verify: function (m, public_key, EG) {
+    	var p = EG.p; var q = EG.q; var g = EG.g;
         var correct = true;
         var y = public_key.y;
-        var hash = b64_sha256(m);
-        var hash_dec = thresholdalgs.encode_string_to_decimal(hash);
+        var hash = hex_sha256(m);
+        var hash_dec = new BigInt(hash,16);
 
         var val = (y.modPow(this.r, p).multiply(this.r.modPow(this.s, p))).mod(p);
         if (!g.modPow(hash_dec, p).mod(p).equals(val))
@@ -391,32 +396,24 @@ thresholdalgs.Signature.fromJSONObject = function (d) {
     return new thresholdalgs.Signature(r, s);
 };
 
+
+
 thresholdalgs.ThresholdScheme = Class.extend({
-    init: function (election_id, n, k, ground_1, ground_2) {
+    init: function (election_id, n, k) {
         this.election_id = election_id;
         this.n = n;
         this.k = k;
-        this.ground_1 = ground_1;
-        this.ground_2 = ground_2;
     },
+    
 
-    share_verifiably: function (s, t, EG, ids) {
+    share_verifiably: function (s, EG, ids) {
         var F = new thresholdalgs.Polynomial(s, this, EG);
-        var G = new thresholdalgs.Polynomial(t, this, EG);
 
         var points_F = F.create_points(ids);
-        var points_G = G.create_points(ids);
-
-        var Ei = [];
-        for (var i = 0; i < this.k; i++) {
-            var commitment_loop = new thresholdalgs.CommitmentE(null, null, null);
-            commitment_loop.generate(F.coeff[i], G.coeff[i], this.ground_1, this.ground_2, EG.p, EG.q, EG.g);
-            Ei.push(commitment_loop);
-        }
 
         var shares = [];
         for (var i = 1; i < this.n + 1; i++) {
-            var share = new thresholdalgs.Share(points_F[i - 1], points_G[i - 1], Ei);
+            var share = new thresholdalgs.Share(points_F[i - 1], Ei);
             if (share.verify_share(this, EG.p, EG.q, EG.g)) {
                 shares.push(share);
             } else {
@@ -432,8 +429,17 @@ thresholdalgs.ThresholdScheme.fromJSONObject = function (d) {
     var election_id = parseInt(d.election_id);
     var n = parseInt(d.n);
     var k = parseInt(d.k);
-    var ground_1 = BigInt.fromJSONObject(d.ground_1);
-    var ground_2 = BigInt.fromJSONObject(d.ground_2);
-
-    return new thresholdalgs.ThresholdScheme(election_id, n, k, ground_1, ground_2);
+    
+    return new thresholdalgs.ThresholdScheme(election_id, n, k);
 };
+
+function storage_encrypt(key,data){
+	window.console.log("Encrypting "+data);
+	p = {mode:"ccm", ts:128, ks:256 };
+	return sjcl.encrypt(sjcl.codec.base64.toBits(key), data, p);
+}
+
+function storage_decrypt(key,data){
+	p = {mode:"ccm", ts:128, ks:256 };
+	return sjcl.decrypt(sjcl.codec.base64.toBits(key),data,p);
+}

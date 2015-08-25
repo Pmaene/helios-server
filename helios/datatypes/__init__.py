@@ -200,7 +200,7 @@ class LDObject(object):
         fields = self.FIELDS
 
         if not self.structured_fields:
-            if self.wrapped_obj.alias != None:
+            if hasattr(self.wrapped_obj, 'alias') and self.wrapped_obj.alias != None:
                 fields = self.ALIASED_VOTER_FIELDS
 
         for f in (alternate_fields or fields):

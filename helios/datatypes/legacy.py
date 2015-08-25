@@ -7,6 +7,8 @@ from helios.crypto import elgamal as elgamal
 from helios.workflows import homomorphic
 from helios import models
 
+from helios.crypto import thresholdalgs as thresholdalgs
+
 ##
 ##
 
@@ -125,22 +127,53 @@ class Trustee(LegacyObject):
     FIELDS = [
         'uuid',
         'id',
-        'original_id',
+        'threshold_id',
         'name',
         'email',
         'public_key',
         'public_key_hash',
         'pok',
         'decryption_factors',
-        'decryption_proofs'
-    ]
+        'decryption_proofs',
+	'public_key_commit_hash',
+	'public_key_commit',
+	'communication_keys',
+	'added_encrypted_shares',
+	'public_key_threshold'
+    ] #note: secret and storagespace ommitted for security
 
     STRUCTURED_FIELDS = {
         'public_key': 'legacy/EGPublicKey',
+        'public_key_threshold': 'legacy/EGPublicKey',
         'pok': 'legacy/DLogProof',
         'decryption_factors': arrayOf(arrayOf('core/BigInteger')),
-        'decryption_proofs': arrayOf(arrayOf('legacy/EGZKProof'))
+        'decryption_proofs': arrayOf(arrayOf('legacy/EGZKProof')),
+        'communication_keys': 'legacy/CommunicationKeys'
     }
+
+class CommunicationKeys(LegacyObject):
+    WRAPPED_OBJ_CLASS = thresholdalgs.CommunicationKeys
+    FIELDS = [
+       'public_key_encrypt','public_key_signing','pok_encrypt','pok_signing'
+    ]
+
+    STRUCTURED_FIELDS = {
+        'public_key_encrypt': 'legacy/EGPublicKey',
+        'public_key_signing': 'legacy/EGPublicKey',
+        'pok_encrypt': 'legacy/DLogProof',
+        'pok_signing':'legacy/DLogProof'
+    }
+
+class SignedEncryptedShare(LegacyObject):
+    FIELDS = [
+        'election_id',
+        'share',
+        'trustee_signer_id',
+        'trustee_receiver_id',
+    ] 
+
+    STRUCTURED_FIELDS = {}
+
 
 
 class EGParams(LegacyObject):
@@ -260,8 +293,5 @@ class Eligibility(ListObject, LegacyObject):
 
 class ThresholdScheme(LegacyObject):
     WRAPPED_OBJ_CLASS = models.ThresholdScheme
-    FIELDS = ['election_id', 'n', 'k', 'ground_1', 'ground_2']
-    STRUCTURED_FIELDS = {
-        'ground_1': 'core/BigInteger',
-        'ground_2': 'core/BigInteger',
-    }
+    FIELDS = ['election_id', 'n', 'k']
+    STRUCTURED_FIELDS = {}

@@ -4,7 +4,7 @@ Forms for Helios
 
 from django import forms
 from django.forms import ModelForm
-from models import Election, Key, Signature
+from models import Election
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
@@ -57,15 +57,7 @@ class VoterPasswordForm(forms.Form):
   password = forms.CharField(max_length=100, label=_('Password'), widget=forms.PasswordInput())
 
 
-class KeyForm(ModelForm):
-  class Meta:
-    model = Key
-
-
 class kForm(forms.Form):
   k = forms.IntegerField()
 
 
-class SignatureForm(ModelForm):
-  class Meta:
-    model = Signature
