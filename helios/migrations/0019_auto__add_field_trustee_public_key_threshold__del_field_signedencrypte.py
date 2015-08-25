@@ -8,32 +8,94 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Trustee.storagespace'
-        db.add_column(u'helios_trustee', 'storagespace',
-                      self.gf('django.db.models.fields.TextField')(null=True),
+        # Adding field 'Trustee.public_key_threshold'
+        db.add_column(u'helios_trustee', 'public_key_threshold',
+                      self.gf('helios.datatypes.djangofield.LDObjectField')(null=True),
                       keep_default=False)
 
-        # Deleting field 'ThresholdScheme.ground_1'
-        db.delete_column(u'helios_thresholdscheme', 'ground_1')
+        # Deleting field 'SignedEncryptedShare.receiver_id'
+        db.delete_column(u'helios_signedencryptedshare', 'receiver_id')
 
-        # Deleting field 'ThresholdScheme.ground_2'
-        db.delete_column(u'helios_thresholdscheme', 'ground_2')
+        # Deleting field 'SignedEncryptedShare.receiver'
+        db.delete_column(u'helios_signedencryptedshare', 'receiver')
 
+        # Deleting field 'SignedEncryptedShare.signer'
+        db.delete_column(u'helios_signedencryptedshare', 'signer')
+
+        # Deleting field 'SignedEncryptedShare.election_id'
+        db.delete_column(u'helios_signedencryptedshare', 'election_id')
+
+        # Deleting field 'SignedEncryptedShare.signer_id'
+        db.delete_column(u'helios_signedencryptedshare', 'signer_id')
+
+        # Adding field 'SignedEncryptedShare.election'
+        db.add_column(u'helios_signedencryptedshare', 'election',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['helios.Election']),
+                      keep_default=False)
+
+
+        # Changing field 'SignedEncryptedShare.share'
+        db.alter_column(u'helios_signedencryptedshare', 'share', self.gf('django.db.models.fields.TextField')(null=True))
 
     def backwards(self, orm):
-        # Deleting field 'Trustee.storagespace'
-        db.delete_column(u'helios_trustee', 'storagespace')
+        # Deleting field 'Trustee.public_key_threshold'
+        db.delete_column(u'helios_trustee', 'public_key_threshold')
 
-        # Adding field 'ThresholdScheme.ground_1'
-        db.add_column(u'helios_thresholdscheme', 'ground_1',
-                      self.gf('helios.datatypes.djangofield.LDObjectField')(null=True),
+
+        # User chose to not deal with backwards NULL issues for 'SignedEncryptedShare.receiver_id'
+        raise RuntimeError("Cannot reverse this migration. 'SignedEncryptedShare.receiver_id' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration        # Adding field 'SignedEncryptedShare.receiver_id'
+        db.add_column(u'helios_signedencryptedshare', 'receiver_id',
+                      self.gf('django.db.models.fields.IntegerField')(),
                       keep_default=False)
 
-        # Adding field 'ThresholdScheme.ground_2'
-        db.add_column(u'helios_thresholdscheme', 'ground_2',
-                      self.gf('helios.datatypes.djangofield.LDObjectField')(null=True),
+
+        # User chose to not deal with backwards NULL issues for 'SignedEncryptedShare.receiver'
+        raise RuntimeError("Cannot reverse this migration. 'SignedEncryptedShare.receiver' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration        # Adding field 'SignedEncryptedShare.receiver'
+        db.add_column(u'helios_signedencryptedshare', 'receiver',
+                      self.gf('django.db.models.fields.CharField')(max_length=40),
                       keep_default=False)
 
+
+        # User chose to not deal with backwards NULL issues for 'SignedEncryptedShare.signer'
+        raise RuntimeError("Cannot reverse this migration. 'SignedEncryptedShare.signer' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration        # Adding field 'SignedEncryptedShare.signer'
+        db.add_column(u'helios_signedencryptedshare', 'signer',
+                      self.gf('django.db.models.fields.CharField')(max_length=40),
+                      keep_default=False)
+
+
+        # User chose to not deal with backwards NULL issues for 'SignedEncryptedShare.election_id'
+        raise RuntimeError("Cannot reverse this migration. 'SignedEncryptedShare.election_id' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration        # Adding field 'SignedEncryptedShare.election_id'
+        db.add_column(u'helios_signedencryptedshare', 'election_id',
+                      self.gf('django.db.models.fields.IntegerField')(),
+                      keep_default=False)
+
+
+        # User chose to not deal with backwards NULL issues for 'SignedEncryptedShare.signer_id'
+        raise RuntimeError("Cannot reverse this migration. 'SignedEncryptedShare.signer_id' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration        # Adding field 'SignedEncryptedShare.signer_id'
+        db.add_column(u'helios_signedencryptedshare', 'signer_id',
+                      self.gf('django.db.models.fields.IntegerField')(),
+                      keep_default=False)
+
+        # Deleting field 'SignedEncryptedShare.election'
+        db.delete_column(u'helios_signedencryptedshare', 'election_id')
+
+
+        # User chose to not deal with backwards NULL issues for 'SignedEncryptedShare.share'
+        raise RuntimeError("Cannot reverse this migration. 'SignedEncryptedShare.share' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration
+        # Changing field 'SignedEncryptedShare.share'
+        db.alter_column(u'helios_signedencryptedshare', 'share', self.gf('django.db.models.fields.CharField')(max_length=10000000))
 
     models = {
         u'helios.auditedballot': {
@@ -56,14 +118,6 @@ class Migration(SchemaMigration):
             'vote_hash': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
             'vote_tinyhash': ('django.db.models.fields.CharField', [], {'max_length': '50', 'unique': 'True', 'null': 'True'}),
             'voter': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['helios.Voter']"})
-        },
-        u'helios.ei': {
-            'Meta': {'object_name': 'Ei'},
-            'election_id': ('django.db.models.fields.IntegerField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'signer': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'signer_id': ('django.db.models.fields.IntegerField', [], {}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '10000'})
         },
         u'helios.election': {
             'Meta': {'object_name': 'Election'},
@@ -129,39 +183,11 @@ class Migration(SchemaMigration):
             'sig': ('django.db.models.fields.CharField', [], {'max_length': '100000'}),
             'signer_id': ('django.db.models.fields.IntegerField', [], {})
         },
-        u'helios.key': {
-            'Meta': {'object_name': 'Key'},
-            'email': ('django.db.models.fields.CharField', [], {'max_length': '60'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'pok_encrypt': ('django.db.models.fields.CharField', [], {'max_length': '10000'}),
-            'pok_signing': ('django.db.models.fields.CharField', [], {'max_length': '10000'}),
-            'public_key_encrypt': ('django.db.models.fields.CharField', [], {'max_length': '10000'}),
-            'public_key_encrypt_hash': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'public_key_signing': ('django.db.models.fields.CharField', [], {'max_length': '10000'}),
-            'public_key_signing_hash': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'helios.secretkey': {
-            'Meta': {'object_name': 'SecretKey'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'public_key': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['helios.Key']"}),
-            'secret_key_encrypt': ('django.db.models.fields.CharField', [], {'max_length': '10000', 'null': 'True'}),
-            'secret_key_signing': ('django.db.models.fields.CharField', [], {'max_length': '10000', 'null': 'True'})
-        },
-        u'helios.signature': {
-            'Meta': {'object_name': 'Signature'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'signature': ('django.db.models.fields.CharField', [], {'max_length': '10000'})
-        },
         u'helios.signedencryptedshare': {
             'Meta': {'object_name': 'SignedEncryptedShare'},
-            'election_id': ('django.db.models.fields.IntegerField', [], {}),
+            'election': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['helios.Election']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'receiver': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'receiver_id': ('django.db.models.fields.IntegerField', [], {}),
-            'share': ('django.db.models.fields.CharField', [], {'max_length': '10000000'}),
-            'signer': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'signer_id': ('django.db.models.fields.IntegerField', [], {}),
+            'share': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'trustee_receiver_id': ('django.db.models.fields.IntegerField', [], {}),
             'trustee_signer_id': ('django.db.models.fields.IntegerField', [], {})
         },
@@ -175,21 +201,24 @@ class Migration(SchemaMigration):
         u'helios.trustee': {
             'Meta': {'unique_together': "(('election', 'email'),)", 'object_name': 'Trustee'},
             'added_encrypted_shares': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'communication_keys': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
             'decryption_factors': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
             'decryption_proofs': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
             'election': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['helios.Election']"}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
             'helios_trustee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['helios.Key']", 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'original_id': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'pok': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
             'public_key': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
+            'public_key_commit': ('django.db.models.fields.TextField', [], {'null': 'True'}),
+            'public_key_commit_hash': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
             'public_key_hash': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'public_key_threshold': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
             'secret': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'secret_key': ('helios.datatypes.djangofield.LDObjectField', [], {'null': 'True'}),
             'storagespace': ('django.db.models.fields.TextField', [], {'null': 'True'}),
+            'threshold_id': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['helios_auth.User']", 'null': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
