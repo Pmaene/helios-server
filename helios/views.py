@@ -514,7 +514,7 @@ Your trustee dashboard is at
 Helios
 """ % (trustee.name, election.name, url)
 
-            tasks.single_trustee_email.delay(trustee.id, "%s - Trustee Dashboard" % election.name, body, settings.SERVER_EMAIL, ["%s <%s>" % (trustee.name, trustee.email)], fail_silently=True)
+            tasks.single_trustee_email.delay(trustee.id, "%s - Trustee Dashboard" % election.name, body)
 
             return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(trustees_list_view, args=[election.uuid]))
     else:
@@ -579,7 +579,7 @@ def trustees_freeze(request, election):
 The election administrator has defined the threshold scheme.
 """ % trustee.name
 
-                        if trustee.key:
+                        if trustee.storagespace:
                             if election.trustees_added_communication_keys():
                                 body += """
 Since all trustees have already uploaded their communication keys, you can now generate your encrypted shares.
@@ -652,7 +652,7 @@ Your trustee dashboard is at
 Helios
 """ % (trustee.name, election.name, url)
 
-    tasks.single_trustee_email.delay(trustee.id, "%s - Trustee Dashboard" % election.name, body, settings.SERVER_EMAIL, ["%s <%s>" % (trustee.name, trustee.email)], fail_silently=True)
+    tasks.single_trustee_email.delay(trustee.id, "%s - Trustee Dashboard" % election.name, body)
 
     logging.info("URL %s " % url)
     return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(trustees_list_view, args=[election.uuid]))
@@ -779,6 +779,7 @@ def trustee_threshold_keygenerator(request, election, trustee):
 
     eg_params_json = utils.to_json(ELGAMAL_PARAMS_LD_OBJECT.toJSONDict())
 
+    scheme = None
     if election.frozen_trustee_list:
         scheme = election.get_scheme()
 

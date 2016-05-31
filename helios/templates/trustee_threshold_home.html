@@ -10,7 +10,7 @@
         <p>
           This is your trustee homepage. As a trustee, you are responsible for decrypting the result of the election when all votes have been cast. In order to encrypt the votes, the system needs you to generate a key pair.
         </p>
-      
+
       {% if election.frozen_at %}
         {% if election.encrypted_tally %}
           {% if trustee.decryption_factors %}
@@ -51,12 +51,12 @@
           </p>
 
           <div data-alert class="alert-box info">
-            You have not yet uploaded your public key.
+            You have not yet completed the key ceremony.
           </div>
 
-          <a class="button" href="{% url 'helios.views.trustee_threshold_keygenerator' election.uuid trustee.uuid %}">Generate Key Pair &raquo;</a>
+          <a class="button" href="{% url 'helios.views.trustee_threshold_keygenerator' election.uuid trustee.uuid %}">Key Ceremony &raquo;</a>
         {% endif %}
-      
+
       <div id="applet_div"></div>
     </div>
   </div>
