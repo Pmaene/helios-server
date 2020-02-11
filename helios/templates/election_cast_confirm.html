@@ -120,7 +120,7 @@
             {% endwith %}
           {% else %}
             {% if user %}
-              <div alert-box class="alert-box warning">
+              <div data-alert class="alert-box warning">
                 {% if election.openreg %}
                   {% blocktrans %}Sorry, you are <i>not eligible</i> for this election.{% endblocktrans %}
                 {% else %}

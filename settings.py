@@ -14,7 +14,7 @@ TEMPLATE_DEBUG = DEBUG
 SITE_ID = 1
 
 ADMINS = (
-    ('Pieter Maene', 'p.maene@gmail.com'),
+    ('Pieter Maene', 'pieter.maene@esat.kuleuven.be'),
 )
 
 MANAGERS = ADMINS

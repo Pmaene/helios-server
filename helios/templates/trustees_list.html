@@ -96,7 +96,7 @@
         </thead>
 
         <tbody>
-          {% for t in trustees %}
+          {% for t, h in trustees %}
             <tr>
               <td>
                 {% if admin_p %}
@@ -129,8 +129,8 @@
                 </td>
               {% else %}
                 <td>
-                  {% if t.key.public_key_encrypt_hash %}
-                    <tt>{{t.key.public_key_encrypt_hash}}</tt>
+                  {% if h %}
+                    <tt>{{h}}</tt>
                   {% else %}
                     <i>Not uploaded yet.</i>
                   {% endif %}
@@ -164,7 +164,7 @@
             </thead>
 
             <tbody>
-              {% for t in trustees %}
+              {% for t, h in trustees %}
                 <tr>
                   <td>
                     {% if admin_p %}<span title="{{t.email}}">{% endif %}{{t.name}}{% if admin_p %}</span>{% endif %}
@@ -196,7 +196,7 @@
             </thead>
 
             <tbody>
-              {% for t in trustees %}
+              {% for t, h in trustees %}
                 <tr>
                   <td>
                     {% if admin_p %}<span title="{{t.email}}">{% endif %}{{t.name}}{% if admin_p %}</span>{% endif %}
@@ -227,7 +227,7 @@
           </thead>
 
           <tbody>
-            {% for t in trustees %}
+            {% for t, h in trustees %}
               <tr>
                 <td>
                   {% if admin_p %}<span title="{{t.email}}">{% endif %}{{t.name}}{% if admin_p %}</span>{% endif %}

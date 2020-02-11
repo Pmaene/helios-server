@@ -5,5 +5,3 @@ deploy-latest.sh
 media/*
 venv
 celerybeat-*
-
-.vagrant

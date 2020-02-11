@@ -562,7 +562,14 @@
     };
 
     BOOTH.show_receipt = function() {
-      UTILS.open_window_with_content('Your smart ballot tracker for ' + BOOTH.election.name + ': ' + BOOTH.encrypted_ballot_hash);
+      var pw = window.open();
+      pw.document.open('text/html');
+      pw.document.write('<div align="center"><h3>Your Smart Ballot Tracker for ' + BOOTH.election.name + '</h3><h2>' + BOOTH.encrypted_ballot_hash + '</h2></div>');
+      pw.document.close();
+
+      pw.focus();
+      pw.print();
+      pw.close();
     };
 
     BOOTH.do_done = function() {
@@ -571,16 +578,19 @@
 
     BOOTH.localize = function() {
       $(function() {
-        var options = {pathPrefix: 'translations'};
-
         if (window.location.hash) {
-          var options = {
-            language: window.location.hash.substring(1),
-            pathPrefix: 'translations'
-          };
+          document.cookie = 'language=' + window.location.hash.substring(1) + '; max-age=900';
         }
 
-        $('[data-localize]').localize('vote', options);
+        var language = document.cookie.replace(/(?:(?:^|.*;\s*)language\s*\=\s*([^;]*).*$)|^.*$/, '$1');
+        if (language == '') {
+          language = (navigator.language || navigator.userLanguage).replace(/^([a-z]{2})-[A-Z]{2}$/, '$1');
+        }
+
+        $('[data-localize]').localize('vote', {
+          language: language,
+          pathPrefix: 'translations'
+        });
       });
 
       $('#send_ballot_form').attr('action', BOOTH.localize_cast_url());
@@ -594,7 +604,10 @@
 
     BOOTH.localize_cast_url = function() {
       // TODO: Resorted to hackery for the localization of the cast URL...
-      var language = window.location.hash.substring(1) != '' ? window.location.hash.substring(1, 3) : 'en';
+      var language = document.cookie.replace(/(?:(?:^|.*;\s*)language\s*\=\s*([^;]*).*$)|^.*$/, '$1');
+      if (language == '') {
+        language = (navigator.language || navigator.userLanguage).replace(/^([a-z]{2})-[A-Z]{2}$/, '$1');
+      }
 
       var localized_url = BOOTH.election.cast_url;
       if (!/\/[a-z]{2}\/helios\//.test(BOOTH.election.cast_url)) {

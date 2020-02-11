@@ -319,7 +319,7 @@ thresholdalgs.CommitmentE = Class.extend({
     },
 
     validate: function (x,s) {
-    	return 0 == this.evaluate(x).compareTo(this.EG.g.modPow(s,this.EG.p));
+	return 0 == this.evaluate(x).compareTo(this.EG.g.modPow(s,this.EG.p));
     },
 
     toJSONObject: function () {

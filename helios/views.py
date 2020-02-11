@@ -469,7 +469,15 @@ def trustees_list_view(request, election):
     if election.public_key:
         public_key_hash = utils.hash_b64(utils.to_json(election.public_key.to_dict()))
 
-    return render_template(request, 'trustees_list', {'election': election, 'trustees': trustees, 'admin_p': admin_p, 'scheme': scheme, 'public_key_hash': public_key_hash})
+    trustees_hashes = []
+    for t in trustees:
+        h = None
+        if t.communication_keys:
+            h = utils.hash_b64('{"encryption":' + utils.to_json(t.communication_keys.public_key_encrypt.to_dict()) + ', "signing": ' + utils.to_json(t.communication_keys.public_key_signing.to_dict()) + '}')
+
+        trustees_hashes += [[t, h]]
+
+    return render_template(request, 'trustees_list', {'election': election, 'trustees': trustees_hashes, 'admin_p': admin_p, 'scheme': scheme})
 
 
 @election_admin(frozen=False)

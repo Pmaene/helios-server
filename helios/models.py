@@ -361,14 +361,11 @@ class Election(HeliosModel):
         """
         has voting begun? voting begins if the election is frozen, at the prescribed date or at the date that voting was forced to start
         """
-        if not self.voting_started_at and not self.voting_starts_at:
-            return True
-
         voting_started_at = False
         if self.voting_started_at:
             voting_started_at = datetime.datetime.utcnow() >= self.voting_started_at
 
-        voting_stars_at = False
+        voting_starts_at = True
         if self.voting_starts_at:
             voting_starts_at = datetime.datetime.now() >= self.voting_starts_at
 
@@ -383,7 +380,7 @@ class Election(HeliosModel):
         if self.voting_ended_at:
             voting_ended_at = datetime.datetime.utcnow() >= self.voting_ended_at
 
-        voting_ends_at = False
+        voting_ends_at = True
         if self.voting_ends_at:
             voting_ends_at = datetime.datetime.now() >= self.voting_ends_at
 
@@ -500,7 +497,7 @@ class Election(HeliosModel):
             decryption_factors = []
             scheme = self.get_scheme()
             trustees_active = trustees.exclude(decryption_factors=None)
-            x_values = [t.id if t.original_id is None else t.original_id for t in trustees_active]
+            x_values = [t.threshold_id for t in trustees_active]
             if len(trustees_active) >= scheme.k:
                 for i in range(scheme.k):
                     numerator = 1
